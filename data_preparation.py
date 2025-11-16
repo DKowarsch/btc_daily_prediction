@@ -1,4 +1,4 @@
-# src/data_preparation.py
+# data_preparation.py
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -173,4 +173,39 @@ if __name__ == "__main__":
     # Fetch and prepare data
     raw_data = fetch_btc_daily_data()
     processed_data, feature_columns = prepare_daily_timeseries_data(raw_data)
+    # Main execution when file is run directly
+if __name__ == "__main__":
+    print("🚀 Starting BTC Data Preparation")
+    print("=" * 50)
     
+    # Fetch and prepare data
+    raw_data = fetch_btc_daily_data()
+    processed_data, feature_columns = prepare_daily_timeseries_data(raw_data)
+    
+    # ✅ SAVE THE PROCESSED DATA FOR MODEL TRAINING
+    os.makedirs('data', exist_ok=True)
+    
+    # Save processed data
+    processed_data.to_csv('data/processed_btc_data.csv')
+    
+    # Save feature columns
+    with open('data/feature_columns.json', 'w') as f:
+        json.dump(feature_columns, f)
+    
+    # Save raw data info for reference
+    data_info = {
+        'total_samples': len(processed_data),
+        'feature_count': len(feature_columns),
+        'date_range_start': processed_data.index[0].strftime('%Y-%m-%d'),
+        'date_range_end': processed_data.index[-1].strftime('%Y-%m-%d'),
+        'preparation_date': datetime.now().isoformat()
+    }
+    with open('data/data_info.json', 'w') as f:
+        json.dump(data_info, f, indent=2)
+    
+    print(f"✅ Data preparation completed and saved!")
+    print(f"📈 Final dataset: {len(processed_data)} samples")
+    print(f"🔧 Features: {len(feature_columns)}")
+    print(f"🎯 Target: Target_1d_Up")
+    print(f"💾 Data saved to: data/processed_btc_data.csv")
+
