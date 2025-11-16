@@ -1,0 +1,43 @@
+name: Daily BTC Prediction
+
+on:
+  schedule:
+    - cron: '0 1 * * *'  # 8 AM UTC daily
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  btc-prediction:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: |
+        pip install tensorflow pandas numpy scikit-learn matplotlib plotly joblib requests yfinance
+        
+    - name: Create directories
+      run: |
+        mkdir -p models reports predictions
+        
+    - name: Run prediction pipeline
+      run: |
+        cd src
+        python data_preparation.py
+        python model_training.py
+        python prediction.py
+        python report_generation.py
+        
+    - name: Commit and push results
+      run: |
+        git config --local user.name "github-actions"
+        git config --local user.email "actions@users.noreply.github.com"
+        git add models/ reports/ predictions/
+        git commit -m "🤖 Auto-update: BTC predictions $(date +%Y-%m-%d)" || exit 0
+        git push
