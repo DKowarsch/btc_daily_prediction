@@ -150,12 +150,10 @@ def train_models():
     print("📊 Loading previously prepared BTC data...")
     
     # Load the data that was saved by data_preparation.py
-    try:
-        processed_data = pd.read_csv('data/processed_btc_data.csv', index_col=0, parse_dates=True)
-        with open('data/feature_columns.json', 'r') as f:
-            feature_columns = json.load(f)
-        with open('data/data_info.json', 'r') as f:
-            data_info = json.load(f)
+    
+    processed_data = pd.read_csv('data/processed_btc_data.csv', index_col=0, parse_dates=True)
+    with open('data/feature_columns.json', 'r') as f:
+        feature_columns = json.load(f)
         
         print(f"✅ Data loaded: {data_info['total_samples']} samples, {data_info['feature_count']} features")
         print(f"📅 Date range: {data_info['date_range_start']} to {data_info['date_range_end']}")
@@ -372,4 +370,5 @@ if __name__ == "__main__":
         with open('reports/training_error.json', 'w') as f:
             json.dump({'error': str(e), 'timestamp': datetime.now().isoformat()}, f, indent=2)
         raise
+
 
