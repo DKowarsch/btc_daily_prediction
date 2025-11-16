@@ -28,7 +28,6 @@ jobs:
         
     - name: Run prediction pipeline
       run: |
-        cd src
         python data_preparation.py
         python model_training.py
         python prediction.py
