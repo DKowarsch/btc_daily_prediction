@@ -1,0 +1,28 @@
+{
+  "best_model_name": "LSTM_Complex",
+  "feature_columns": [
+    "Returns",
+    "Log_Returns",
+    "Volatility_3period",
+    "Volatility_7period",
+    "Volatility_14period",
+    "MA_Ratio_3",
+    "MA_Ratio_7",
+    "MA_Ratio_14",
+    "Volume_Ratio",
+    "Volume_Spike",
+    "Momentum_1period",
+    "Momentum_3period",
+    "Momentum_7period",
+    "RSI_14",
+    "Price_Range",
+    "Range_MA_5",
+    "Price_7d_Ratio",
+    "Day_Sin",
+    "Day_Cos"
+  ],
+  "sequence_length": 10,
+  "training_date": "2025-11-16T04:12:17.629762",
+  "best_profit_score": 0.5928869242196555,
+  "best_accuracy": 0.5054945054945055
+}

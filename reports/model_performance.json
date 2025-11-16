@@ -1,0 +1,58 @@
+{
+  "GRU_Tiny": {
+    "train_accuracy": 0.54178145087236,
+    "val_accuracy": 0.5316804407713499,
+    "test_accuracy": 0.521978021978022,
+    "test_precision": 0.5647058823529412,
+    "test_recall": 0.2594594594594595,
+    "test_f1": 0.35555555555555557,
+    "test_profit_score": 0.5887336949725728,
+    "prediction_mean": 0.4728594720363617,
+    "prediction_std": 0.04007269814610481,
+    "confidence": 0.07836884260177612,
+    "training_date": "2025-11-16T04:11:56.651629",
+    "parameters": 705
+  },
+  "LSTM_Complex": {
+    "train_accuracy": 0.5215794306703397,
+    "val_accuracy": 0.4903581267217631,
+    "test_accuracy": 0.5054945054945055,
+    "test_precision": 0.5342465753424658,
+    "test_recall": 0.21081081081081082,
+    "test_f1": 0.3023255813953488,
+    "test_profit_score": 0.5928869242196555,
+    "prediction_mean": 0.4999275505542755,
+    "prediction_std": 0.0023135622031986713,
+    "confidence": 0.003114039311185479,
+    "training_date": "2025-11-16T04:12:03.256503",
+    "parameters": 9969
+  },
+  "BiLSTM": {
+    "train_accuracy": 0.5638200183654729,
+    "val_accuracy": 0.5399449035812672,
+    "test_accuracy": 0.5247252747252747,
+    "test_precision": 0.5652173913043478,
+    "test_recall": 0.2810810810810811,
+    "test_f1": 0.37545126353790614,
+    "test_profit_score": 0.5912658641626547,
+    "prediction_mean": 0.48112034797668457,
+    "prediction_std": 0.029308034107089043,
+    "confidence": 0.057628098875284195,
+    "training_date": "2025-11-16T04:12:11.609116",
+    "parameters": 4881
+  },
+  "Dense_Wide": {
+    "train_accuracy": 0.6446280991735537,
+    "val_accuracy": 0.5399449035812672,
+    "test_accuracy": 0.5,
+    "test_precision": 0.5185185185185185,
+    "test_recall": 0.22702702702702704,
+    "test_f1": 0.3157894736842105,
+    "test_profit_score": 0.5838598677090236,
+    "prediction_mean": 0.48491331934928894,
+    "prediction_std": 0.05526445060968399,
+    "confidence": 0.06972011923789978,
+    "training_date": "2025-11-16T04:12:17.629642",
+    "parameters": 34817
+  }
+}
