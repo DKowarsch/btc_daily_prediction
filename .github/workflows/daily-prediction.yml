@@ -24,12 +24,11 @@ jobs:
         
     - name: Create directories
       run: |
-        mkdir -p data models reports predictions
+        mkdir -p models reports predictions
         
     - name: Run prediction pipeline
       run: |
         python data_preparation.py
-        python model_training.py
         python prediction.py
         python report_generation.py
         
