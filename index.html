@@ -291,14 +291,14 @@
             }
         }
         
-        // Calculate next update time (02:00 UTC)
+        // Calculate next update time (15:00 UTC)
         function calculateNextUpdate() {
             const now = new Date();
             const nextUpdate = new Date();
             
-            // Set to next 02:00 UTC
-            nextUpdate.setUTCHours(2, 0, 0, 0);
-            if (now.getUTCHours() >= 2) {
+            // Set to next 15:00 UTC
+            nextUpdate.setUTCHours(15, 0, 0, 0);
+            if (now.getUTCHours() >= 15) {
                 nextUpdate.setUTCDate(nextUpdate.getUTCDate() + 1);
             }
             
