@@ -1,48 +1,65 @@
-# src/data_preparation.py
-import yfinance as yf
+# data_preparation.py
 import pandas as pd
 import numpy as np
+import requests
 from datetime import datetime, timedelta
-import json
-import os
+import warnings
+warnings.filterwarnings('ignore')
 
 def fetch_btc_daily_data():
-    """Fetch BTC daily data from Yahoo Finance"""
-    print("📊 Fetching BTC daily data...")
+    """Fetch BTC daily data from CoinGecko API (reliable)"""
+    print("📊 Fetching BTC daily data from CoinGecko API...")
+    
     try:
-        btc = yf.Ticker("BTC-USD")
-        hist = btc.history(period="5y", interval="1d")  
-        print(f"✅ Successfully fetched {len(hist)} days of BTC data")
-        return hist
+        # Use the same CoinGecko API that works in your script
+        url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart"
+        params = {
+            'vs_currency': 'usd',
+            'days': '730',  # 2 years
+            'interval': 'daily'
+        }
+        response = requests.get(url, params=params, timeout=15)
+        
+        if response.status_code == 200:
+            data = response.json()
+            prices = data['prices']
+            
+            # Convert to DataFrame
+            df = pd.DataFrame(prices, columns=['timestamp', 'Close'])
+            df['Date'] = pd.to_datetime(df['timestamp'], unit='ms')
+            df.set_index('Date', inplace=True)
+            df = df.drop('timestamp', axis=1)
+            
+            # Add OHLC data (approximate from close price)
+            df['Open'] = df['Close'].shift(1).fillna(df['Close'])
+            df['High'] = df[['Open', 'Close']].max(axis=1)
+            df['Low'] = df[['Open', 'Close']].min(axis=1)
+            df['Volume'] = 0  # Placeholder
+            df['Adj Close'] = df['Close']
+            
+            print(f"✅ Successfully fetched {len(df)} days from CoinGecko")
+            print(f"📅 Date range: {df.index[0].strftime('%Y-%m-%d')} to {df.index[-1].strftime('%Y-%m-%d')}")
+            print(f"💰 Current price: ${df['Close'].iloc[-1]:.2f}")
+            return df
+            
     except Exception as e:
-        print(f"❌ Error fetching BTC data: {e}")
-        # Return sample data if fetch fails
-        return create_sample_data()
-
-def create_sample_data():
-    """Create sample data if Yahoo Finance fails"""
-    print("🔄 Creating sample data for testing...")
-    dates = pd.date_range(start='2020-01-01', end=datetime.now(), freq='D')
-    np.random.seed(42)
+        print(f"❌ CoinGecko API error: {e}")
     
-    # Generate realistic BTC price data
-    prices = [5000]
-    for i in range(1, len(dates)):
-        change = np.random.normal(0.002, 0.04)
-        new_price = prices[-1] * (1 + change)
-        prices.append(max(new_price, 100))
+    # Fallback to Yahoo Finance
+    try:
+        import yfinance as yf
+        print("🔄 Falling back to Yahoo Finance...")
+        btc = yf.Ticker("BTC-USD")
+        hist = btc.history(period="2y", interval="1d")  
+        if not hist.empty:
+            print(f"✅ Successfully fetched {len(hist)} days from Yahoo Finance")
+            return hist
+    except Exception as e:
+        print(f"❌ Yahoo Finance error: {e}")
     
-    sample_data = pd.DataFrame({
-        'Open': prices,
-        'High': [p * (1 + np.random.uniform(0, 0.05)) for p in prices],
-        'Low': [p * (1 - np.random.uniform(0, 0.03)) for p in prices],
-        'Close': prices,
-        'Volume': [np.random.randint(1e9, 5e10) for _ in prices],
-        'Adj Close': prices
-    }, index=dates)
-    
-    print(f"✅ Created sample data with {len(sample_data)} days")
-    return sample_data
+    # Final fallback
+    print("❌ All data sources failed")
+    return None
 
 def prepare_daily_timeseries_data(data):
     """Prepare features and targets for time series prediction"""
@@ -57,6 +74,9 @@ def prepare_daily_timeseries_data(data):
     
     print("🔄 Calculating technical indicators...")
     print(f"📈 Total samples: {len(processed_data)}")
+
+    # Fill any NaN values first
+    processed_data = processed_data.ffill().bfill()
 
     # Calculate returns and technical indicators
     processed_data['Returns'] = processed_data['Close'].pct_change() * 100
@@ -160,9 +180,12 @@ if __name__ == "__main__":
     
     # Fetch and prepare data
     raw_data = fetch_btc_daily_data()
-    processed_data, feature_columns = prepare_daily_timeseries_data(raw_data)
-    
-    print(f"\n✅ Data preparation completed!")
-    print(f"📈 Final dataset: {len(processed_data)} samples")
-    print(f"🔧 Features: {len(feature_columns)}")
-    print(f"🎯 Target: Target_1d_Up")
+    if raw_data is not None:
+        processed_data, feature_columns = prepare_daily_timeseries_data(raw_data)
+        
+        print(f"\n✅ Data preparation completed!")
+        print(f"📈 Final dataset: {len(processed_data)} samples")
+        print(f"🔧 Features: {len(feature_columns)}")
+        print(f"🎯 Target: Target_1d_Up")
+    else:
+        print("❌ Data preparation failed - no data available")
