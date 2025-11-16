@@ -24,7 +24,7 @@ jobs:
         
     - name: Create directories
       run: |
-        mkdir -p models reports predictions
+        mkdir -p data models reports predictions
         
     - name: Run prediction pipeline
       run: |
