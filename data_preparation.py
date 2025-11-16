@@ -16,7 +16,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 
 def fetch_btc_daily_data():
     btc = yf.Ticker("BTC-USD")
-    hist = btc.history(period="5y", interval="1d")  
+    hist = btc.history(period="2y", interval="1d")  
     return hist
 
 def prepare_daily_timeseries_data(data):
@@ -477,3 +477,4 @@ if __name__ == "__main__":
         with open('reports/training_error.json', 'w') as f:
             json.dump({'error': str(e), 'timestamp': datetime.now().isoformat()}, f, indent=2)
         raise
+
