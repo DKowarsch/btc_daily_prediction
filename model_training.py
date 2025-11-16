@@ -1,4 +1,4 @@
-# src/model_training.py
+# model_training.py
 import pandas as pd
 import numpy as np
 import json
@@ -11,6 +11,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping
 import os
 from datetime import datetime
+import joblib
 
 def calculate_profit_score(y_true, y_pred, y_pred_proba):
     """
@@ -141,16 +142,25 @@ def scale_features_properly(X_train, X_val, X_test):
     
     return X_train_scaled, X_val_scaled, X_test_scaled, scaler
 
-def train_models_live():
-    """Train models using live data and return comprehensive results"""
+def train_models():
+    """Train models using the prepared data from data_preparation.py"""
     print("🚀 Starting BTC Day Trading Model Training")
     print("="*50)
     
-    # Import data preparation functions
-    from data_preparation import fetch_btc_daily_data, prepare_daily_timeseries_data
+    # Import the prepare function only (not fetch)
+    from data_preparation import prepare_daily_timeseries_data
     
-    # Fetch and prepare fresh data
-    print("📊 Fetching live BTC data...")
+    # Load the raw data that was already fetched by data_preparation.py
+    # We need to simulate what data_preparation.py already did
+    print("📊 Loading prepared BTC data...")
+    
+    # Since data_preparation.py already ran and prepared the data,
+    # we need to either:
+    # 1. Load the processed data from a file, or
+    # 2. Run the data preparation again but only the processing part
+    
+    # Option: Import and use the same data preparation
+    from data_preparation import fetch_btc_daily_data
     raw_data = fetch_btc_daily_data()
     processed_data, feature_columns = prepare_daily_timeseries_data(raw_data)
     
@@ -340,16 +350,17 @@ def save_training_results(training_results):
             'best_profit_score': training_results['training_summary']['best_profit_score'],
             'best_accuracy': training_results['training_summary']['best_accuracy']
         }, f, indent=2)
-    best_model = training_results['best_model']
-    best_model.save('models/best_model.h5')
-    # Save scaler for predictions
-    import joblib
+    
+    # Save the actual model and scaler
+    training_results['best_model'].save('models/best_model.h5')
     joblib.dump(training_results['scaler'], 'models/scaler.pkl')
+    
+    print("✅ Training results saved!")
 
 if __name__ == "__main__":
     try:
-        # Train models with live data
-        training_results = train_models_live()
+        # Train models with the prepared data
+        training_results = train_models()
         
         # Save results for web dashboard
         save_training_results(training_results)
@@ -367,4 +378,3 @@ if __name__ == "__main__":
         with open('reports/training_error.json', 'w') as f:
             json.dump({'error': str(e), 'timestamp': datetime.now().isoformat()}, f, indent=2)
         raise
-    # Add to save_training_results() function
