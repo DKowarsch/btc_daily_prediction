@@ -55,6 +55,8 @@ def prepare_daily_timeseries_data(data):
     processed_data['Momentum_7period'] = (processed_data['Close'] / processed_data['Close'].shift(7) - 1).ffill()    
 
     # Time-based features
+    if not isinstance(processed_data.index, pd.DatetimeIndex):
+        processed_data.index = pd.to_datetime(processed_data.index)
     processed_data['DayOfWeek'] = processed_data.index.dayofweek
     processed_data['Day_Sin'] = np.sin(2 * np.pi * processed_data['DayOfWeek'] / 7)
     processed_data['Day_Cos'] = np.cos(2 * np.pi * processed_data['DayOfWeek'] / 7)
@@ -477,4 +479,5 @@ if __name__ == "__main__":
         with open('reports/training_error.json', 'w') as f:
             json.dump({'error': str(e), 'timestamp': datetime.now().isoformat()}, f, indent=2)
         raise
+
 
