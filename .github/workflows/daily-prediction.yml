@@ -24,18 +24,22 @@ jobs:
         
     - name: Create directories
       run: |
-        mkdir -p models reports predictions
+        mkdir -p models reports predictions training_results
         
     - name: Run prediction pipeline
       run: |
         python data_preparation.py
-        python prediction.py
         python report_generation.py
-        
+    - name: Debug file creation
+      run: |
+        echo "📁 Checking created files:"
+        find . -name "*.json" -o -name "*.h5" -o -name "*.pkl" -o -name "*.png" | head -20
+        echo "📁 Directory contents:"
+        ls -la models/ reports/ predictions/ training_results/ || echo "Some directories missing"       
     - name: Commit and push results
       run: |
         git config --local user.name "github-actions"
         git config --local user.email "actions@users.noreply.github.com"
-        git add models/ reports/ predictions/
+        git add models/ reports/ predictions/ training_results/
         git commit -m "🤖 Auto-update: BTC predictions $(date +%Y-%m-%d)" || exit 0
         git push
