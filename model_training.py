@@ -143,29 +143,23 @@ def scale_features_properly(X_train, X_val, X_test):
     return X_train_scaled, X_val_scaled, X_test_scaled, scaler
 
 def train_models():
-    """Train models using the prepared data from data_preparation.py"""
+    """Train models using the saved prepared data"""
     print("🚀 Starting BTC Day Trading Model Training")
     print("="*50)
     
-    # Import the prepare function only (not fetch)
-    from data_preparation import prepare_daily_timeseries_data
+    print("📊 Loading previously prepared BTC data...")
     
-    # Load the raw data that was already fetched by data_preparation.py
-    # We need to simulate what data_preparation.py already did
-    print("📊 Loading prepared BTC data...")
-    
-    # Since data_preparation.py already ran and prepared the data,
-    # we need to either:
-    # 1. Load the processed data from a file, or
-    # 2. Run the data preparation again but only the processing part
-    
-    # Option: Import and use the same data preparation
-    from data_preparation import fetch_btc_daily_data
-    raw_data = fetch_btc_daily_data()
-    processed_data, feature_columns = prepare_daily_timeseries_data(raw_data)
-    
-    print(f"✅ Data loaded: {len(processed_data)} samples, {len(feature_columns)} features")
-    
+    # Load the data that was saved by data_preparation.py
+    try:
+        processed_data = pd.read_csv('data/processed_btc_data.csv', index_col=0, parse_dates=True)
+        with open('data/feature_columns.json', 'r') as f:
+            feature_columns = json.load(f)
+        with open('data/data_info.json', 'r') as f:
+            data_info = json.load(f)
+        
+        print(f"✅ Data loaded: {data_info['total_samples']} samples, {data_info['feature_count']} features")
+        print(f"📅 Date range: {data_info['date_range_start']} to {data_info['date_range_end']}")
+        
     # Create sequences
     sequence_length = 10
     X, y = create_robust_sequences(processed_data, feature_columns, 'Target_1d_Up', sequence_length)
@@ -378,3 +372,4 @@ if __name__ == "__main__":
         with open('reports/training_error.json', 'w') as f:
             json.dump({'error': str(e), 'timestamp': datetime.now().isoformat()}, f, indent=2)
         raise
+
