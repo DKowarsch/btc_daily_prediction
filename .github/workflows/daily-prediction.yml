@@ -2,7 +2,7 @@ name: Daily BTC Prediction
 
 on:
   schedule:
-    - cron: '0 16 * * *'  # 8 AM PST daily
+    - cron: '0 15 * * *'  # 7 AM PST daily in Winter
   workflow_dispatch:  # Manual trigger
 
 jobs:
