@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 AI Financial Analytics Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .prediction-card, .portfolio-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+        
+        .card-header h2 {
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin-left: 10px;
+        }
+        
+        .icon {
+            font-size: 2em;
+        }
+        
+        .visualization {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .visualization img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .data-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .data-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .data-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .data-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+            font-size: 0.9em;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .recommendation {
+            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .recommendation h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: white;
+            opacity: 0.8;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .prediction-grid, .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .prediction-item, .portfolio-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+        
+        .prediction-item.up {
+            border-color: #27ae60;
+            background: #d5f4e6;
+        }
+        
+        .prediction-item.down {
+            border-color: #e74c3c;
+            background: #fadbd8;
+        }
+        
+        .portfolio-item.high-weight {
+            border-color: #3498db;
+            background: #d6eaf8;
+        }
+        
+        .update-info {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid #3498db;
+        }
+        
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 5px 0;
+        }
+        
+        .metric-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .improvement-positive {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .improvement-negative {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .weight-bar {
+            background: #ecf0f1;
+            border-radius: 10px;
+            height: 20px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .weight-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 AI Financial Analytics Dashboard</h1>
+            <p>Riverside Data Solutions, LLC & DeepSeek-powered Portfolio Optimization & BTC Predictions</p>
+        </div>
+
+        <div class="update-info">
+            <p>Next update: <span id="next-update">Calculating...</span></p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Portfolio Optimization Section -->
+            <div class="portfolio-card">
+                <div class="card-header">
+                    <div class="icon">💼</div>
+                    <h2>Portfolio Optimization</h2>
+                </div>
+                
+                <div class="performance-metrics">
+                    <div class="metric-card">
+                        <div class="metric-label">Optimal Volatility</div>
+                        <div class="metric-value" id="opt-volatility">-</div>
+                        <div class="metric-label" id="vol-improvement"></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Expected Return</div>
+                        <div class="metric-value" id="opt-return">-</div>
+                        <div class="metric-label" id="return-improvement"></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Sharpe Ratio</div>
+                        <div class="metric-value" id="opt-sharpe">-</div>
+                        <div class="metric-label" id="sharpe-improvement"></div>
+                    </div>
+                </div>
+
+                <h3>🏆 Optimal Portfolio Allocation</h3>
+                <div class="portfolio-grid" id="portfolio-allocation">
+                    <div class="loading">Loading portfolio data...</div>
+                </div>
+
+                <div class="data-section">
+                    <div class="data-card">
+                        <h3>📊 Performance Comparison</h3>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Optimal</th>
+                                    <th>Equal Weight</th>
+                                    <th>Improvement</th>
+                                </tr>
+                            </thead>
+                            <tbody id="performance-comparison">
+                                <tr><td colspan="4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="data-card">
+                        <h3>🔍 Portfolio Data</h3>
+                        <p>Access detailed portfolio optimization results</p>
+                        <a href="portfolio/optimization_results.json" class="btn" target="_blank">View JSON Data</a>
+                        <a href="reports/training_summary.json" class="btn btn-secondary" target="_blank">Model Report</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BTC Prediction Section -->
+            <div class="prediction-card">
+                <div class="card-header">
+                    <div class="icon">📊</div>
+                    <h2>BTC Price Predictions</h2>
+                </div>
+
+                <div class="visualization">
+                    <img src="predictions/prediction_visualization.png" alt="BTC 7-Day Prediction Chart" id="prediction-image">
+                    <div class="loading" id="image-loading">
+                        <p>Loading latest prediction chart...</p>
+                    </div>
+                </div>
+
+                <div class="recommendation" id="recommendation">
+                    <p>Loading recommendation...</p>
+                </div>
+
+                <h3>🗓️ Daily Predictions</h3>
+                <div id="predictions-list">
+                    <div class="loading">Loading daily predictions...</div>
+                </div>
+
+                <div class="data-section">
+                    <div class="data-card">
+                        <h3>📋 Prediction Details</h3>
+                        <p>View detailed 7-day price predictions</p>
+                        <a href="predictions/latest_predictions.json" class="btn" target="_blank">View JSON Data</a>
+                        <a href="predictions/latest_predictions.csv" class="btn btn-secondary" target="_blank">Download CSV</a>
+                    </div>
+                    
+                    <div class="data-card">
+                        <h3>🔍 Model Information</h3>
+                        <p>AI model details and performance</p>
+                        <a href="models/best_model_info.json" class="btn" target="_blank">Model Details</a>
+                        <a href="reports/model_performance.json" class="btn btn-secondary" target="_blank">Performance Report</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🤖 Powered by Riverside Data Solutions, LLC & AI • Updated daily at 02:00 UTC</p>
+            <p>Last update: <span id="last-update">Loading...</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Load and display portfolio data
+        async function loadPortfolioData() {
+            try {
+                const response = await fetch('portfolio/optimization_results.json');
+                const data = await response.json();
+                
+                // Update performance metrics
+                document.getElementById('opt-volatility').textContent = (data.performance.optimal_volatility * 100).toFixed(1) + '%';
+                document.getElementById('opt-return').textContent = (data.performance.optimal_return * 100).toFixed(1) + '%';
+                document.getElementById('opt-sharpe').textContent = data.performance.optimal_sharpe.toFixed(3);
+                
+                // Calculate improvements
+                const volImprovement = ((data.performance.equal_volatility - data.performance.optimal_volatility) / data.performance.equal_volatility * 100);
+                const returnImprovement = ((data.performance.optimal_return - data.performance.equal_return) / data.performance.equal_return * 100);
+                const sharpeImprovement = ((data.performance.optimal_sharpe - data.performance.equal_sharpe) / data.performance.equal_sharpe * 100);
+                
+                document.getElementById('vol-improvement').innerHTML = getImprovementHTML(volImprovement, 'risk');
+                document.getElementById('return-improvement').innerHTML = getImprovementHTML(returnImprovement, 'return');
+                document.getElementById('sharpe-improvement').innerHTML = getImprovementHTML(sharpeImprovement, 'efficiency');
+                
+                // Update portfolio allocation
+                const portfolioGrid = document.getElementById('portfolio-allocation');
+                portfolioGrid.innerHTML = '';
+                
+                Object.entries(data.optimal_weights).forEach(([asset, weight]) => {
+                    if (weight > 0.01) { // Only show weights > 1%
+                        const portfolioItem = document.createElement('div');
+                        portfolioItem.className = 'portfolio-item high-weight';
+                        portfolioItem.innerHTML = `
+                            <h4>${asset}</h4>
+                            <div class="weight-bar">
+                                <div class="weight-fill" style="width: ${weight * 100}%"></div>
+                            </div>
+                            <p><strong>${(weight * 100).toFixed(1)}%</strong></p>
+                        `;
+                        portfolioGrid.appendChild(portfolioItem);
+                    }
+                });
+                
+                // Update performance comparison table
+                const comparisonTable = document.getElementById('performance-comparison');
+                comparisonTable.innerHTML = `
+                    <tr>
+                        <td>Volatility</td>
+                        <td>${(data.performance.optimal_volatility * 100).toFixed(2)}%</td>
+                        <td>${(data.performance.equal_volatility * 100).toFixed(2)}%</td>
+                        <td class="${volImprovement >= 0 ? 'improvement-positive' : 'improvement-negative'}">
+                            ${volImprovement >= 0 ? '+' : ''}${volImprovement.toFixed(1)}%
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Return</td>
+                        <td>${(data.performance.optimal_return * 100).toFixed(2)}%</td>
+                        <td>${(data.performance.equal_return * 100).toFixed(2)}%</td>
+                        <td class="${returnImprovement >= 0 ? 'improvement-positive' : 'improvement-negative'}">
+                            ${returnImprovement >= 0 ? '+' : ''}${returnImprovement.toFixed(1)}%
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Sharpe Ratio</td>
+                        <td>${data.performance.optimal_sharpe.toFixed(3)}</td>
+                        <td>${data.performance.equal_sharpe.toFixed(3)}</td>
+                        <td class="${sharpeImprovement >= 0 ? 'improvement-positive' : 'improvement-negative'}">
+                            ${sharpeImprovement >= 0 ? '+' : ''}${sharpeImprovement.toFixed(1)}%
+                        </td>
+                    </tr>
+                `;
+                
+            } catch (error) {
+                console.error('Error loading portfolio data:', error);
+                document.getElementById('portfolio-allocation').innerHTML = '<div class="loading">Error loading portfolio data</div>';
+            }
+        }
+        
+        function getImprovementHTML(improvement, type) {
+            const positive = improvement >= 0;
+            const icon = positive ? '↗' : '↘';
+            const text = positive ? 
+                (type === 'risk' ? 'Lower Risk' : type === 'return' ? 'Higher Return' : 'Better Efficiency') :
+                (type === 'risk' ? 'Higher Risk' : type === 'return' ? 'Lower Return' : 'Worse Efficiency');
+            
+            return `<span class="${positive ? 'improvement-positive' : 'improvement-negative'}">${icon} ${text}</span>`;
+        }
+        
+        // Load and display prediction data
+        async function loadPredictions() {
+            try {
+                const response = await fetch('predictions/latest_predictions.json');
+                const data = await response.json();
+                
+                // Update recommendation
+                const recommendation = data.trading_recommendation;
+                document.getElementById('recommendation').innerHTML = `
+                    <h3>${recommendation.recommendation}</h3>
+                    <p><strong>Confidence:</strong> ${recommendation.confidence}</p>
+                    <p><strong>Reasoning:</strong> ${recommendation.reasoning}</p>
+                    <p><strong>7-Day Return:</strong> ${recommendation.total_return.toFixed(2)}%</p>
+                `;
+                
+                // Update predictions list
+                const predictionsList = document.getElementById('predictions-list');
+                predictionsList.innerHTML = '<div class="prediction-grid"></div>';
+                const grid = predictionsList.querySelector('.prediction-grid');
+                
+                data.predictions.forEach(pred => {
+                    const directionClass = pred.direction.toLowerCase();
+                    const predictionItem = document.createElement('div');
+                    predictionItem.className = `prediction-item ${directionClass}`;
+                    predictionItem.innerHTML = `
+                        <h4>Day ${pred.day} - ${pred.date}</h4>
+                        <p><strong>Price:</strong> $${pred.predicted_price.toFixed(2)}</p>
+                        <p><strong>Return:</strong> <span style="color: ${pred.predicted_return >= 0 ? '#27ae60' : '#e74c3c'}">${pred.predicted_return > 0 ? '+' : ''}${pred.predicted_return.toFixed(2)}%</span></p>
+                        <p><strong>Direction:</strong> ${pred.direction}</p>
+                    `;
+                    grid.appendChild(predictionItem);
+                });
+                
+                // Update last update time
+                document.getElementById('last-update').textContent = new Date(data.generated_at).toLocaleString();
+                
+                // Hide loading message for image
+                document.getElementById('image-loading').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error loading predictions:', error);
+                document.getElementById('recommendation').innerHTML = '<p>Error loading predictions. Please try again later.</p>';
+                document.getElementById('predictions-list').innerHTML = '<p>Error loading predictions. Please try again later.</p>';
+            }
+        }
+        
+        // Calculate next update time (15:00 UTC)
+        function calculateNextUpdate() {
+            const now = new Date();
+            const nextUpdate = new Date();
+            
+            nextUpdate.setUTCHours(15, 0, 0, 0);
+            if (now.getUTCHours() >= 15) {
+                nextUpdate.setUTCDate(nextUpdate.getUTCDate() + 1);
+            }
+            
+            const timeUntilUpdate = nextUpdate - now;
+            const hours = Math.floor(timeUntilUpdate / (1000 * 60 * 60));
+            const minutes = Math.floor((timeUntilUpdate % (1000 * 60 * 60)) / (1000 * 60));
+            
+            document.getElementById('next-update').textContent = 
+                `in ${hours}h ${minutes}m (${nextUpdate.toUTCString()})`;
+        }
+        
+        // Check if image loaded successfully
+        document.getElementById('prediction-image').onload = function() {
+            document.getElementById('image-loading').style.display = 'none';
+        };
+        
+        document.getElementById('prediction-image').onerror = function() {
+            document.getElementById('image-loading').innerHTML = '<p>⚠️ Prediction chart not available</p>';
+        };
+        
+        // Load all data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPortfolioData();
+            loadPredictions();
+            calculateNextUpdate();
+            setInterval(calculateNextUpdate, 60000);
+        });
+    </script>
+</body>
+</html>
