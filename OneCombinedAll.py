@@ -96,11 +96,9 @@ def fetch_portfolio_data():
     print(f"✅ Portfolio data: {all_prices.shape[1]} assets, {all_prices.shape[0]} days")
     return all_prices, returns, cov_matrix
 
-def optimize_portfolio(cov_matrix, expected_returns=None):
-    """Find minimum variance portfolio"""
-    if expected_returns is None:
-        expected_returns = returns.mean() * 252
-    
+def optimize_portfolio(cov_matrix, expected_returns):
+    """Find minimum variance portfolio - FIXED"""
+    # Remove the default parameter logic since we always pass expected_returns
     n_assets = len(cov_matrix)
     
     def portfolio_variance(weights):
@@ -572,7 +570,10 @@ def load_latest_model():
         feature_columns = model_info['feature_columns']
         sequence_length = model_info['sequence_length']
         scaler = joblib.load('models/scaler.pkl')
-        best_model = load_model('models/best_model.h5')
+        best_model = load_model('models/best_model.h5', compile=False)
+        best_model.compile(optimizer=Adam(learning_rate=0.001),
+                        loss='binary_crossentropy',
+                        metrics=['accuracy'])
         
         print(f"✅ Loaded model: {model_info['best_model_name']}")
         print(f"📊 Features: {len(feature_columns)}, Sequence: {sequence_length}")
@@ -582,8 +583,89 @@ def load_latest_model():
     except Exception as e:
         raise Exception(f"❌ Failed to load model: {e}")
 
+def predict_7_days_ahead(model, scaler, feature_columns, sequence_length, processed_data, model_info):
+    """Generate 7-day predictions using recursive forecasting"""
+    try:
+        print("🔮 Generating 7-day predictions...")
+        
+        predictions = []
+        current_sequence = processed_data[feature_columns].tail(sequence_length).copy()
+        
+        # Get current price for reference
+        current_price = processed_data['Close'].iloc[-1]
+        simulated_price = current_price
+        
+        for day in range(1, 8):
+            # Prepare current sequence - handle missing values
+            current_sequence_filled = current_sequence.copy()
+            for col in feature_columns:
+                if current_sequence_filled[col].isna().any():
+                    current_sequence_filled[col] = current_sequence_filled[col].ffill().fillna(0)
+            
+            # Scale the sequence
+# ✅ CORRECT: This keeps the shape as (10, 19) for proper scaling
+            sequence_reshaped = current_sequence_filled.values  # Shape: (10, 19)
+            sequence_scaled = scaler.transform(sequence_reshaped)  # Shape: (10, 19)
+                        
+            # Reshape based on model type
+            if 'Dense' in model_info['best_model_name']:
+                prediction_input = sequence_scaled.reshape(1, -1)
+            else:
+                prediction_input = sequence_scaled.reshape(1, sequence_length, len(feature_columns))
+            
+            # Make prediction
+            prediction_proba = model.predict(prediction_input, verbose=0)
+            
+            # Handle different output formats
+            if hasattr(prediction_proba, '__len__') and len(prediction_proba) > 0:
+                prediction_proba = float(prediction_proba[0][0] if len(prediction_proba[0]) > 0 else prediction_proba[0])
+            else:
+                prediction_proba = float(prediction_proba)
+                
+            prediction = 1 if prediction_proba > 0.5 else 0
+            
+            # Calculate predicted price movement
+            recent_volatility = processed_data['Returns'].tail(10).std()
+            base_move = recent_volatility * 0.8  # 80% of recent volatility
+            
+            if prediction == 1:
+                predicted_return = base_move * prediction_proba
+            else:
+                predicted_return = -base_move * (1 - prediction_proba)
+            
+            simulated_price = simulated_price * (1 + predicted_return / 100)
+            
+            predictions.append({
+                'day': day,
+                'date': (datetime.now() + timedelta(days=day)).strftime('%Y-%m-%d'),
+                'predicted_direction': 'UP' if prediction == 1 else 'DOWN',
+                'predicted_probability': float(prediction_proba),
+                'predicted_price': float(simulated_price),
+                'predicted_return': float(predicted_return),
+                'confidence': 'HIGH' if prediction_proba > 0.7 or prediction_proba < 0.3 else 'MEDIUM' if prediction_proba > 0.6 or prediction_proba < 0.4 else 'LOW'
+            })
+            
+            # Update sequence for next prediction
+            if day < 7:
+                new_row = current_sequence.iloc[-1:].copy()
+                price_change_pct = predicted_return
+                new_row['Returns'] = price_change_pct
+                new_row['Log_Returns'] = np.log(1 + price_change_pct / 100) * 100
+                new_row['Momentum_1period'] = price_change_pct / 100
+                
+                # Update the sequence
+                current_sequence = pd.concat([current_sequence.iloc[1:], new_row], axis=0)
+        
+        return predictions
+        
+    except Exception as e:
+        print(f"❌ Error in 7-day prediction: {e}")
+        import traceback
+        traceback.print_exc()
+        return []
+
 def run_prediction():
-    """Run prediction using trained model"""
+    """Run 7-day prediction using trained model"""
     try:
         print("🚀 Starting BTC 7-Day Prediction")
         print("="*50)
@@ -599,89 +681,83 @@ def run_prediction():
             
         print(f"✅ Data loaded: {len(processed_data)} samples")
         
-        # ACTUAL PREDICTION LOGIC
-        print("\n🔮 Making predictions...")
+        # Generate 7-day predictions
+        predictions = predict_7_days_ahead(best_model, scaler, feature_columns, sequence_length, processed_data, model_info)
         
-        # Prepare the most recent sequence for prediction
-        recent_data = processed_data[feature_columns].tail(sequence_length)
+        if not predictions:
+            raise Exception("❌ Failed to generate predictions")
         
-        # Handle missing values
-        for col in feature_columns:
-            if recent_data[col].isna().any():
-                recent_data[col] = recent_data[col].ffill().fillna(0)
-        
-        # FIX: Proper scaling for sequence data
-        recent_sequence = recent_data.values  # Shape: (10, 19)
-        
-        # Scale each feature individually (maintains 19 features)
-        recent_scaled = scaler.transform(recent_sequence.reshape(-1, len(feature_columns)))
-        
-        # Reshape based on model type
-        if 'Dense' in model_info['best_model_name']:
-            # For dense models, flatten the input: (10, 19) -> (190,)
-            prediction_input = recent_scaled.reshape(1, -1)
-        else:
-            # For RNN models, keep sequence structure: (10, 19)
-            prediction_input = recent_scaled.reshape(1, sequence_length, len(feature_columns))
-        
-        print(f"📊 Prediction input shape: {prediction_input.shape}")
-        
-        # Make prediction
-        prediction_proba = best_model.predict(prediction_input, verbose=0)
-        if isinstance(prediction_proba, (list, np.ndarray)):
-            prediction_proba = prediction_proba[0][0] if len(prediction_proba[0]) > 0 else prediction_proba[0]
-        else:
-            prediction_proba = float(prediction_proba)
-            
-        prediction = 1 if prediction_proba > 0.5 else 0
-        
-        # Get current price
         current_price = processed_data['Close'].iloc[-1]
         
-        # Display prediction results
+        # Calculate overall recommendation
+        up_predictions = sum(1 for p in predictions if p['predicted_direction'] == 'UP')
+        total_return = sum(p['predicted_return'] for p in predictions)
+        
+        if up_predictions >= 5:
+            overall_recommendation = "STRONG BUY"
+            reasoning = f"Bullish trend with {up_predictions}/7 days predicted UP"
+        elif up_predictions >= 3:
+            overall_recommendation = "HOLD"
+            reasoning = f"Mixed signals with {up_predictions}/7 days predicted UP"
+        else:
+            overall_recommendation = "SELL"
+            reasoning = f"Bearish trend with only {up_predictions}/7 days predicted UP"
+        
+        # Create prediction results
+        prediction_data = {
+            'current_price': float(current_price),
+            'predictions': predictions,
+            'trading_recommendation': {
+                'recommendation': overall_recommendation,
+                'confidence': 'HIGH' if abs(total_return) > 10 else 'MEDIUM',
+                'reasoning': reasoning,
+                'total_return': float(total_return),
+                'bullish_days': up_predictions,
+                'bearish_days': 7 - up_predictions
+            },
+            'model_used': model_info['best_model_name'],
+            'model_performance': {
+                'profit_score': model_info['best_profit_score'],
+                'accuracy': model_info['best_accuracy']
+            },
+            'generated_at': datetime.now().isoformat()
+        }
+        
+        # Save predictions
+        os.makedirs('predictions', exist_ok=True)
+        with open('predictions/latest_predictions.json', 'w') as f:
+            json.dump(prediction_data, f, indent=2)
+        
+        # Also save as CSV
+        predictions_df = pd.DataFrame(predictions)
+        predictions_df.to_csv('predictions/latest_predictions.csv', index=False)
+        
+        # Display results
         print(f"\n🏆 Using best model: {model_info['best_model_name']}")
         print(f"💰 Model profit score: {model_info['best_profit_score']:.4f}")
         print(f"📈 Model accuracy: {model_info['best_accuracy']:.4f}")
         print(f"📊 Current BTC Price: ${current_price:,.2f}")
-        print(f"🎯 Prediction Probability: {prediction_proba:.4f}")
-        print(f"🔮 1-Day Prediction: {'UP ⬆️' if prediction == 1 else 'DOWN ⬇️'}")
-        print(f"💎 Confidence: {prediction_proba if prediction == 1 else 1-prediction_proba:.1%}")
+        print(f"\n🎯 7-DAY PREDICTIONS:")
+        print("-" * 50)
+        for pred in predictions:
+            direction_icon = "🟢" if pred['predicted_direction'] == 'UP' else "🔴"
+            print(f"Day {pred['day']} ({pred['date']}): {direction_icon} {pred['predicted_direction']}")
+            print(f"   Price: ${pred['predicted_price']:,.2f} | Return: {pred['predicted_return']:+.2f}%")
+            print(f"   Confidence: {pred['confidence']} | Probability: {pred['predicted_probability']:.1%}")
+            print()
         
-        # Add some context
-        if prediction_proba > 0.7 or prediction_proba < 0.3:
-            confidence_level = "HIGH"
-        elif prediction_proba > 0.6 or prediction_proba < 0.4:
-            confidence_level = "MEDIUM"
-        else:
-            confidence_level = "LOW"
-            
-        print(f"📊 Confidence Level: {confidence_level}")
+        print(f"📊 SUMMARY: {overall_recommendation}")
+        print(f"💡 Reasoning: {reasoning}")
+        print(f"📈 Total 7-day return: {total_return:+.2f}%")
         
-        # Additional prediction context
-        if prediction == 1:
-            if prediction_proba > 0.7:
-                print("💡 Strong bullish signal detected")
-            else:
-                print("💡 Moderate bullish signal")
-        else:
-            if prediction_proba < 0.3:
-                print("💡 Strong bearish signal detected")
-            else:
-                print("💡 Moderate bearish signal")
-        
-        return {
-            'prediction': prediction,
-            'probability': prediction_proba,
-            'current_price': current_price,
-            'confidence': confidence_level,
-            'model_used': model_info['best_model_name']
-        }
+        return prediction_data
         
     except Exception as e:
         print(f"❌ Prediction failed: {e}")
         import traceback
         print(f"🔍 Detailed error: {traceback.format_exc()}")
         return False
+    
 
 # ==================== MAIN FUNCTION ====================
 
