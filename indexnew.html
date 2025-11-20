@@ -86,13 +86,68 @@
         .visualization {
             text-align: center;
             margin: 20px 0;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
         }
         
-        .visualization img {
-            max-width: 100%;
-            height: auto;
+        .prediction-chart {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .prediction-day {
+            background: white;
+            padding: 15px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border: 3px solid #e9ecef;
+        }
+        
+        .prediction-day.up {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #d5f4e6, #27ae60);
+            color: white;
+        }
+        
+        .prediction-day.down {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #fadbd8, #e74c3c);
+            color: white;
+        }
+        
+        .day-number {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .day-date {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+        
+        .day-price {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .day-return {
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .day-return.positive {
+            color: #2ecc71;
+        }
+        
+        .day-return.negative {
+            color: #e74c3c;
         }
         
         .data-section {
@@ -105,6 +160,16 @@
         @media (max-width: 768px) {
             .data-section {
                 grid-template-columns: 1fr;
+            }
+            
+            .prediction-chart {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .prediction-chart {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
         
@@ -175,29 +240,19 @@
             color: #666;
         }
         
-        .prediction-grid, .portfolio-grid {
+        .portfolio-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-top: 15px;
         }
         
-        .prediction-item, .portfolio-item {
+        .portfolio-item {
             background: #f8f9fa;
             padding: 15px;
             border-radius: 8px;
             text-align: center;
             border: 2px solid #e9ecef;
-        }
-        
-        .prediction-item.up {
-            border-color: #27ae60;
-            background: #d5f4e6;
-        }
-        
-        .prediction-item.down {
-            border-color: #e74c3c;
-            background: #fadbd8;
         }
         
         .portfolio-item.high-weight {
@@ -289,6 +344,59 @@
         .comparison-table tr:hover {
             background: #f8f9fa;
         }
+
+        .model-performance {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .model-metric {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .model-metric .value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .model-metric .label {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .summary-stat {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .summary-stat .value {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 5px 0;
+        }
+        
+        .summary-stat .label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
     </style>
 </head>
 <body>
@@ -364,23 +472,61 @@
             <div class="prediction-card">
                 <div class="card-header">
                     <div class="icon">📊</div>
-                    <h2>BTC Price Predictions</h2>
+                    <h2>BTC 7-Day Predictions</h2>
                 </div>
 
-                <div class="visualization">
-                    <img src="predictions/prediction_visualization.png" alt="BTC 7-Day Prediction Chart" id="prediction-image">
-                    <div class="loading" id="image-loading">
-                        <p>Loading latest prediction chart...</p>
+                <!-- Current Price and Model Info -->
+                <div class="summary-stats">
+                    <div class="summary-stat">
+                        <div class="label">Current Price</div>
+                        <div class="value" id="current-price">-</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="label">Model</div>
+                        <div class="value" id="model-name">-</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="label">Profit Score</div>
+                        <div class="value" id="profit-score">-</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="label">Accuracy</div>
+                        <div class="value" id="model-accuracy">-</div>
                     </div>
                 </div>
 
+                <!-- 7-Day Prediction Chart -->
+                <div class="visualization">
+                    <h3>📅 7-Day Price Prediction</h3>
+                    <div class="prediction-chart" id="prediction-chart">
+                        <div class="loading">Loading predictions...</div>
+                    </div>
+                </div>
+
+                <!-- Recommendation -->
                 <div class="recommendation" id="recommendation">
                     <p>Loading recommendation...</p>
                 </div>
 
-                <h3>🗓️ Daily Predictions</h3>
-                <div id="predictions-list">
-                    <div class="loading">Loading daily predictions...</div>
+                <!-- Model Performance -->
+                <h3>🤖 Prediction Summary</h3>
+                <div class="summary-stats" id="prediction-summary">
+                    <div class="summary-stat">
+                        <div class="label">Bullish Days</div>
+                        <div class="value" id="bullish-days">-</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="label">Bearish Days</div>
+                        <div class="value" id="bearish-days">-</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="label">Total Return</div>
+                        <div class="value" id="total-return">-</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="label">Confidence</div>
+                        <div class="value" id="overall-confidence">-</div>
+                    </div>
                 </div>
 
                 <div class="data-section">
@@ -498,43 +644,55 @@
                 const response = await fetch('predictions/latest_predictions.json');
                 const data = await response.json();
                 
+                // Update current price and model info
+                document.getElementById('current-price').textContent = `$${data.current_price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                document.getElementById('model-name').textContent = data.model_used;
+                document.getElementById('profit-score').textContent = data.model_performance.profit_score.toFixed(4);
+                document.getElementById('model-accuracy').textContent = (data.model_performance.accuracy * 100).toFixed(1) + '%';
+                
+                // Update prediction chart
+                const predictionChart = document.getElementById('prediction-chart');
+                predictionChart.innerHTML = '';
+                
+                data.predictions.forEach(pred => {
+                    const predictionDay = document.createElement('div');
+                    predictionDay.className = `prediction-day ${pred.predicted_direction.toLowerCase()}`;
+                    predictionDay.innerHTML = `
+                        <div class="day-number">Day ${pred.day}</div>
+                        <div class="day-date">${pred.date}</div>
+                        <div class="day-price">$${pred.predicted_price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="day-return ${pred.predicted_return >= 0 ? 'positive' : 'negative'}">
+                            ${pred.predicted_return >= 0 ? '+' : ''}${pred.predicted_return.toFixed(2)}%
+                        </div>
+                        <div class="day-confidence" style="margin-top: 5px; font-size: 0.8em;">
+                            ${pred.confidence}
+                        </div>
+                    `;
+                    predictionChart.appendChild(predictionDay);
+                });
+                
                 // Update recommendation
                 const recommendation = data.trading_recommendation;
                 document.getElementById('recommendation').innerHTML = `
                     <h3>${recommendation.recommendation}</h3>
                     <p><strong>Confidence:</strong> ${recommendation.confidence}</p>
                     <p><strong>Reasoning:</strong> ${recommendation.reasoning}</p>
-                    <p><strong>7-Day Return:</strong> ${recommendation.total_return.toFixed(2)}%</p>
+                    <p><strong>7-Day Return:</strong> <span style="color: ${recommendation.total_return >= 0 ? '#2ecc71' : '#e74c3c'}">${recommendation.total_return >= 0 ? '+' : ''}${recommendation.total_return.toFixed(2)}%</span></p>
                 `;
                 
-                // Update predictions list
-                const predictionsList = document.getElementById('predictions-list');
-                predictionsList.innerHTML = '<div class="prediction-grid"></div>';
-                const grid = predictionsList.querySelector('.prediction-grid');
-                
-                data.predictions.forEach(pred => {
-                    const directionClass = pred.direction.toLowerCase();
-                    const predictionItem = document.createElement('div');
-                    predictionItem.className = `prediction-item ${directionClass}`;
-                    predictionItem.innerHTML = `
-                        <h4>Day ${pred.day} - ${pred.date}</h4>
-                        <p><strong>Price:</strong> $${pred.predicted_price.toFixed(2)}</p>
-                        <p><strong>Return:</strong> <span style="color: ${pred.predicted_return >= 0 ? '#27ae60' : '#e74c3c'}">${pred.predicted_return > 0 ? '+' : ''}${pred.predicted_return.toFixed(2)}%</span></p>
-                        <p><strong>Direction:</strong> ${pred.direction}</p>
-                    `;
-                    grid.appendChild(predictionItem);
-                });
+                // Update prediction summary
+                document.getElementById('bullish-days').textContent = recommendation.bullish_days;
+                document.getElementById('bearish-days').textContent = recommendation.bearish_days;
+                document.getElementById('total-return').textContent = `${recommendation.total_return >= 0 ? '+' : ''}${recommendation.total_return.toFixed(2)}%`;
+                document.getElementById('overall-confidence').textContent = recommendation.confidence;
                 
                 // Update last update time
                 document.getElementById('last-update').textContent = new Date(data.generated_at).toLocaleString();
                 
-                // Hide loading message for image
-                document.getElementById('image-loading').style.display = 'none';
-                
             } catch (error) {
                 console.error('Error loading predictions:', error);
-                document.getElementById('recommendation').innerHTML = '<p>Error loading predictions. Please try again later.</p>';
-                document.getElementById('predictions-list').innerHTML = '<p>Error loading predictions. Please try again later.</p>';
+                document.getElementById('recommendation').innerHTML = '<p>⚠️ Predictions updating... Run Python script to generate latest predictions</p>';
+                document.getElementById('prediction-chart').innerHTML = '<div class="loading">Run prediction script to generate 7-day forecasts</div>';
             }
         }
         
@@ -555,15 +713,6 @@
             document.getElementById('next-update').textContent = 
                 `in ${hours}h ${minutes}m (${nextUpdate.toUTCString()})`;
         }
-        
-        // Check if image loaded successfully
-        document.getElementById('prediction-image').onload = function() {
-            document.getElementById('image-loading').style.display = 'none';
-        };
-        
-        document.getElementById('prediction-image').onerror = function() {
-            document.getElementById('image-loading').innerHTML = '<p>⚠️ Prediction chart not available</p>';
-        };
         
         // Load all data when page loads
         document.addEventListener('DOMContentLoaded', function() {
