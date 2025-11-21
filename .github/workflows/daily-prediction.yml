@@ -20,11 +20,11 @@ jobs:
         
     - name: Install dependencies
       run: |
-        pip install tensorflow pandas numpy scikit-learn matplotlib plotly joblib requests yfinance
+        pip install tensorflow pandas numpy scikit-learn matplotlib plotly joblib requests yfinance scipy  # ← ADDED scipy
         
     - name: Create directories
       run: |
-        mkdir -p models reports predictions training_results
+        mkdir -p models reports predictions portfolio training_results  # ← ADDED portfolio
         
     - name: Run prediction pipeline
       run: |
@@ -35,11 +35,11 @@ jobs:
         echo "📁 Checking created files:"
         find . -name "*.json" -o -name "*.h5" -o -name "*.pkl" -o -name "*.png" | head -20
         echo "📁 Directory contents:"
-        ls -la models/ reports/ predictions/ training_results/ || echo "Some directories missing"       
+        ls -la models/ reports/ predictions/ portfolio/ training_results/ || echo "Some directories missing"  # ← ADDED portfolio
     - name: Commit and push results
       run: |
         git config --local user.name "github-actions"
         git config --local user.email "actions@users.noreply.github.com"
-        git add models/ reports/ predictions/ training_results/
+        git add models/ reports/ predictions/ portfolio/ training_results/  # ← ADDED portfolio
         git commit -m "🤖 Auto-update: BTC predictions $(date +%Y-%m-%d)" || exit 0
         git push
