@@ -23,6 +23,7 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
+            width: 100%;
         }
         
         .header {
@@ -32,17 +33,21 @@
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             margin-bottom: 30px;
+            width: 100%;
         }
         
         .header h1 {
             color: #2c3e50;
             font-size: 2.5em;
             margin-bottom: 10px;
+            word-wrap: break-word;
         }
         
         .header p {
             color: #7f8c8d;
             font-size: 1.1em;
+            max-width: 100%;
+            word-wrap: break-word;
         }
         
         .dashboard-grid {
@@ -50,6 +55,8 @@
             grid-template-columns: 1fr 1fr;
             gap: 30px;
             margin-bottom: 30px;
+            width: 100%;
+            align-item: start;
         }
         
         @media (max-width: 1024px) {
@@ -402,7 +409,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 AI Financial Analytics Dashboard</h1>
+            <h1>🚀 Financial Analytics Dashboard</h1>
             <p>Riverside Data Solutions, LLC & DeepSeek-powered Portfolio Optimization & BTC Predictions</p>
         </div>
 
