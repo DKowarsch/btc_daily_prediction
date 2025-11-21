@@ -18,6 +18,7 @@
             color: #e2e8f0;
             line-height: 1.6;
             padding: 20px;
+            min-height: 100vh;
         }
         
         .dashboard-container {
@@ -28,10 +29,11 @@
         .header {
             text-align: center;
             margin-bottom: 30px;
-            padding: 20px;
+            padding: 25px;
             background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
         }
         
         .header h1 {
@@ -58,6 +60,7 @@
             padding: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             transition: transform 0.3s ease;
+            border: 1px solid #334155;
         }
         
         .card:hover {
@@ -76,7 +79,7 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 15px;
-            padding: 10px;
+            padding: 12px;
             background-color: #334155;
             border-radius: 8px;
         }
@@ -92,25 +95,34 @@
         
         .metric-tag {
             font-size: 0.8rem;
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 20px;
             background-color: #3b82f6;
         }
         
+        .allocation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
         .allocation-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid #334155;
+            background-color: #334155;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
         }
         
         .allocation-name {
             font-weight: 500;
+            margin-bottom: 8px;
+            color: #94a3b8;
         }
         
         .allocation-percent {
             font-weight: bold;
+            font-size: 1.3rem;
             color: #60a5fa;
         }
         
@@ -133,10 +145,37 @@
         
         .improvement-positive {
             color: #10b981;
+            font-weight: bold;
         }
         
         .improvement-negative {
             color: #ef4444;
+            font-weight: bold;
+        }
+        
+        .source-link {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #334155;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        
+        .action-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .action-button:hover {
+            background-color: #2563eb;
         }
         
         .prediction-grid {
@@ -215,6 +254,17 @@
             margin-top: 40px;
             color: #94a3b8;
             font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid #334155;
+        }
+        
+        .explanation-note {
+            background-color: #334155;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #94a3b8;
         }
         
         @media (max-width: 768px) {
@@ -224,6 +274,10 @@
             
             .prediction-grid {
                 grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+            
+            .allocation-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -263,21 +317,23 @@
             
             <div class="card">
                 <h2>Optimal Portfolio Allocation</h2>
-                <div class="allocation-item">
-                    <span class="allocation-name">AAPL</span>
-                    <span class="allocation-percent">61.5%</span>
-                </div>
-                <div class="allocation-item">
-                    <span class="allocation-name">CRML</span>
-                    <span class="allocation-percent">2.0%</span>
-                </div>
-                <div class="allocation-item">
-                    <span class="allocation-name">BTC</span>
-                    <span class="allocation-percent">31.6%</span>
-                </div>
-                <div class="allocation-item">
-                    <span class="allocation-name">BNB</span>
-                    <span class="allocation-percent">4.8%</span>
+                <div class="allocation-grid">
+                    <div class="allocation-item">
+                        <div class="allocation-name">AAPL</div>
+                        <div class="allocation-percent">61.5%</div>
+                    </div>
+                    <div class="allocation-item">
+                        <div class="allocation-name">CRML</div>
+                        <div class="allocation-percent">2.0%</div>
+                    </div>
+                    <div class="allocation-item">
+                        <div class="allocation-name">BTC</div>
+                        <div class="allocation-percent">31.6%</div>
+                    </div>
+                    <div class="allocation-item">
+                        <div class="allocation-name">BNB</div>
+                        <div class="allocation-percent">4.8%</div>
+                    </div>
                 </div>
             </div>
             
@@ -307,14 +363,12 @@
                         </tr>
                     </tbody>
                 </table>
-                <div style="margin-top: 15px; font-size: 0.9rem; color: #94a3b8;">
+                <div class="source-link">
                     <strong>Source:</strong> Portfolio Data
                 </div>
-                <div style="margin-top: 10px;">
-                    <a href="#" style="color: #60a5fa; text-decoration: none;">
-                        Access detailed portfolio optimization results <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
+                <a href="#" class="action-button">
+                    Access detailed portfolio optimization results <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
         </div>
         
@@ -352,44 +406,48 @@
                         <div class="prediction-date">Day 1<br>2024-11-31</div>
                         <div class="prediction-price">$86,751.82</div>
                         <div class="prediction-change positive">+1.50%</div>
-                        <div class="prediction-tag">Non</div>
+                        <div class="prediction-tag">Non-Event</div>
                     </div>
                     <div class="prediction-day">
                         <div class="prediction-date">Day 2<br>2024-11-30</div>
                         <div class="prediction-price">$88,052.90</div>
                         <div class="prediction-change positive">+1.50%</div>
-                        <div class="prediction-tag">Non</div>
+                        <div class="prediction-tag">Non-Event</div>
                     </div>
                     <div class="prediction-day">
                         <div class="prediction-date">Day 3<br>2024-11-34</div>
                         <div class="prediction-price">$89,378.61</div>
                         <div class="prediction-change positive">+1.51%</div>
-                        <div class="prediction-tag">Non</div>
+                        <div class="prediction-tag">Non-Event</div>
                     </div>
                     <div class="prediction-day">
                         <div class="prediction-date">Day 4<br>2024-11-35</div>
                         <div class="prediction-price">$90,719.15</div>
                         <div class="prediction-change positive">+1.50%</div>
-                        <div class="prediction-tag">Non</div>
+                        <div class="prediction-tag">Non-Event</div>
                     </div>
                     <div class="prediction-day">
                         <div class="prediction-date">Day 5<br>2024-11-36</div>
                         <div class="prediction-price">$92,069.70</div>
                         <div class="prediction-change positive">+1.47%</div>
-                        <div class="prediction-tag">Non</div>
+                        <div class="prediction-tag">Non-Event</div>
                     </div>
                     <div class="prediction-day">
                         <div class="prediction-date">Day 6<br>2024-11-37</div>
                         <div class="prediction-price">$93,423.95</div>
                         <div class="prediction-change positive">+1.47%</div>
-                        <div class="prediction-tag">Non</div>
+                        <div class="prediction-tag">Non-Event</div>
                     </div>
                     <div class="prediction-day">
                         <div class="prediction-date">Day 7<br>2024-11-38</div>
                         <div class="prediction-price">$94,786.62</div>
                         <div class="prediction-change positive">+1.44%</div>
-                        <div class="prediction-tag">Non</div>
+                        <div class="prediction-tag">Non-Event</div>
                     </div>
+                </div>
+                
+                <div class="explanation-note">
+                    <i class="fas fa-info-circle"></i> "Non-Event" indicates no major market events are predicted for these days.
                 </div>
             </div>
             
@@ -397,7 +455,7 @@
                 <div class="buy-signal">
                     <h3>STRONG BUY</h3>
                     <div class="confidence">HIGH CONFIDENCE</div>
-                    <p><strong>Reasoning:</strong> Buffalo trend with 777 days predicted UP</p>
+                    <p><strong>Reasoning:</strong> Bullish trend with 7 days predicted UP</p>
                     <p style="margin-top: 10px;"><strong>7 Day Return:</strong> +10.48%</p>
                 </div>
                 
@@ -405,8 +463,8 @@
                 <table class="summary-table">
                     <thead>
                         <tr>
-                            <th>Buffalo Days</th>
-                            <th>Boards Days</th>
+                            <th>Bullish Days</th>
+                            <th>Bearish Days</th>
                             <th>Total Return</th>
                             <th>Confidence</th>
                         </tr>
@@ -420,6 +478,10 @@
                         </tr>
                     </tbody>
                 </table>
+                
+                <a href="#" class="action-button" style="margin-top: 20px; display: block; text-align: center;">
+                    View Detailed Analysis <i class="fas fa-chart-line"></i>
+                </a>
             </div>
         </div>
         
@@ -427,5 +489,33 @@
             <p>Riverside Data Solutions, LLC &copy; 2024 | AI-Powered Financial Analytics</p>
         </div>
     </div>
+
+    <script>
+        // Make buttons interactive
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.action-button');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    alert('This would navigate to detailed analytics in a real application.');
+                });
+            });
+            
+            // Add hover effect to prediction days
+            const predictionDays = document.querySelectorAll('.prediction-day');
+            
+            predictionDays.forEach(day => {
+                day.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                
+                day.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
 </body>
 </html>
