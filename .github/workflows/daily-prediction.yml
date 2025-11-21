@@ -28,8 +28,8 @@ jobs:
         
     - name: Run prediction pipeline
       run: |
-        python data_preparation.py
-        python report_generation.py
+        python OneCombinedAll.py
+        
     - name: Debug file creation
       run: |
         echo "📁 Checking created files:"
