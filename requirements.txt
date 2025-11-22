@@ -1,0 +1,11 @@
+# requirements.txt
+tensorflow
+pandas
+numpy
+scikit-learn
+matplotlib
+plotly
+joblib
+requests
+yfinance
+ta-lib

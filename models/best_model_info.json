@@ -1,0 +1,28 @@
+{
+  "best_model_name": "BiLSTM",
+  "feature_columns": [
+    "Returns",
+    "Log_Returns",
+    "Volatility_3period",
+    "Volatility_7period",
+    "Volatility_14period",
+    "MA_Ratio_3",
+    "MA_Ratio_7",
+    "MA_Ratio_14",
+    "Volume_Ratio",
+    "Volume_Spike",
+    "Momentum_1period",
+    "Momentum_3period",
+    "Momentum_7period",
+    "RSI_14",
+    "Price_Range",
+    "Range_MA_5",
+    "Price_7d_Ratio",
+    "Day_Sin",
+    "Day_Cos"
+  ],
+  "sequence_length": 10,
+  "training_date": "2025-11-22T23:58:27.798739",
+  "best_profit_score": 0.5872232976850572,
+  "best_accuracy": 0.521978021978022
+}
