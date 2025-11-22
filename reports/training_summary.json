@@ -1,7 +1,7 @@
 {
   "total_samples": 1827,
-  "training_date": "2025-11-21T15:22:02.202220",
-  "best_profit_score": 0.5955322969090808,
-  "best_accuracy": 0.5384615384615384,
+  "training_date": "2025-11-22T15:21:34.122054",
+  "best_profit_score": 0.5844022467896179,
+  "best_accuracy": 0.5164835164835165,
   "models_trained": 4
 }
