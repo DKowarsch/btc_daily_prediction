@@ -1,5 +1,5 @@
 {
-  "best_model_name": "GRU_Tiny",
+  "best_model_name": "BiLSTM",
   "feature_columns": [
     "Returns",
     "Log_Returns",
@@ -22,7 +22,7 @@
     "Day_Cos"
   ],
   "sequence_length": 10,
-  "training_date": "2025-11-22T15:21:34.122054",
-  "best_profit_score": 0.5844022467896179,
-  "best_accuracy": 0.5164835164835165
+  "training_date": "2025-11-22T23:58:27.798739",
+  "best_profit_score": 0.5872232976850572,
+  "best_accuracy": 0.521978021978022
 }
