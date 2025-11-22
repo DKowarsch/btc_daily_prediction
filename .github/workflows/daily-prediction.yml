@@ -1,4 +1,4 @@
-name: Daily BTC Prediction
+name: Daily BTC Prediction and Deploy
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:  # Manual trigger
 
 jobs:
-  btc-prediction:
+  btc-prediction-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
@@ -20,11 +20,11 @@ jobs:
         
     - name: Install dependencies
       run: |
-        pip install tensorflow pandas numpy scikit-learn matplotlib plotly joblib requests yfinance scipy  # ← ADDED scipy
+        pip install tensorflow pandas numpy scikit-learn matplotlib plotly joblib requests yfinance scipy
         
     - name: Create directories
       run: |
-        mkdir -p models reports predictions portfolio training_results  # ← ADDED portfolio
+        mkdir -p models reports predictions portfolio training_results
         
     - name: Run prediction pipeline
       run: |
@@ -35,17 +35,18 @@ jobs:
         echo "📁 Checking created files:"
         find . -name "*.json" -o -name "*.h5" -o -name "*.pkl" -o -name "*.png" | head -20
         echo "📁 Directory contents:"
-        ls -la models/ reports/ predictions/ portfolio/ training_results/ || echo "Some directories missing"  # ← ADDED portfolio
+        ls -la models/ reports/ predictions/ portfolio/ training_results/ || echo "Some directories missing"
+        
     - name: Commit and push results
       run: |
         git config --local user.name "github-actions"
         git config --local user.email "actions@users.noreply.github.com"
-        git add models/ reports/ predictions/ portfolio/ training_results/  # ← ADDED portfolio
+        git add models/ reports/ predictions/ portfolio/ training_results/
         git commit -m "🤖 Auto-update: BTC predictions $(date +%Y-%m-%d)" || exit 0
         git push
-        # ADD THIS STEP TO DEPLOY TO GITHUB PAGES
+        
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./  
+        publish_dir: ./
