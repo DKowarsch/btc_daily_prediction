@@ -43,3 +43,9 @@ jobs:
         git add models/ reports/ predictions/ portfolio/ training_results/  # ← ADDED portfolio
         git commit -m "🤖 Auto-update: BTC predictions $(date +%Y-%m-%d)" || exit 0
         git push
+        # ADD THIS STEP TO DEPLOY TO GITHUB PAGES
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./  
