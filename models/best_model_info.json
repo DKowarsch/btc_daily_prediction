@@ -22,7 +22,7 @@
     "Day_Cos"
   ],
   "sequence_length": 10,
-  "training_date": "2025-11-22T23:58:27.798739",
-  "best_profit_score": 0.5872232976850572,
-  "best_accuracy": 0.521978021978022
+  "training_date": "2025-11-23T15:21:22.543894",
+  "best_profit_score": 0.5913199474523355,
+  "best_accuracy": 0.5357142857142857
 }
