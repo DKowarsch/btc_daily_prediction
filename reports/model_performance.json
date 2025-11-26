@@ -1,38 +1,38 @@
 {
   "GRU_Tiny": {
-    "test_accuracy": 0.49725274725274726,
-    "test_precision": 0.4939759036144578,
-    "test_recall": 0.4530386740331492,
-    "test_f1": 0.47262247838616717,
-    "test_profit_score": 0.5626782984523983,
-    "training_date": "2025-11-25T15:27:06.367516",
+    "test_accuracy": 0.5137362637362637,
+    "test_precision": 0.5121951219512195,
+    "test_recall": 0.46408839779005523,
+    "test_f1": 0.48695652173913045,
+    "test_profit_score": 0.5820714595553639,
+    "training_date": "2025-11-26T15:23:30.158473",
     "parameters": 705
   },
   "LSTM_Complex": {
-    "test_accuracy": 0.5027472527472527,
-    "test_precision": 0.5,
-    "test_recall": 0.23756906077348067,
-    "test_f1": 0.32209737827715357,
-    "test_profit_score": 0.5853974067247831,
-    "training_date": "2025-11-25T15:27:14.181317",
+    "test_accuracy": 0.510989010989011,
+    "test_precision": 0.507177033492823,
+    "test_recall": 0.585635359116022,
+    "test_f1": 0.5435897435897435,
+    "test_profit_score": 0.5756004809023261,
+    "training_date": "2025-11-26T15:23:36.290960",
     "parameters": 9969
   },
   "BiLSTM": {
-    "test_accuracy": 0.5027472527472527,
-    "test_precision": 0.5,
-    "test_recall": 0.4198895027624309,
-    "test_f1": 0.45645645645645644,
-    "test_profit_score": 0.5758009615180256,
-    "training_date": "2025-11-25T15:27:20.494582",
+    "test_accuracy": 0.5164835164835165,
+    "test_precision": 0.5263157894736842,
+    "test_recall": 0.27624309392265195,
+    "test_f1": 0.36231884057971014,
+    "test_profit_score": 0.5880501636437008,
+    "training_date": "2025-11-26T15:23:45.842740",
     "parameters": 4881
   },
   "Dense_Wide": {
     "test_accuracy": 0.49175824175824173,
-    "test_precision": 0.49328859060402686,
-    "test_recall": 0.8121546961325967,
-    "test_f1": 0.6137787056367432,
-    "test_profit_score": 0.5668428366000835,
-    "training_date": "2025-11-25T15:27:23.439779",
+    "test_precision": 0.49019607843137253,
+    "test_recall": 0.5524861878453039,
+    "test_f1": 0.5194805194805194,
+    "test_profit_score": 0.5710263011219738,
+    "training_date": "2025-11-26T15:23:48.846112",
     "parameters": 34817
   }
 }
