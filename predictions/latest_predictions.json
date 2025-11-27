@@ -1,82 +1,82 @@
 {
-  "current_price": 86963.3046875,
+  "current_price": 90846.625,
   "predictions": [
     {
       "day": 1,
-      "date": "2025-11-27",
+      "date": "2025-11-28",
       "predicted_direction": "UP",
-      "predicted_probability": 0.5224524140357971,
-      "predicted_price": 87770.22056104142,
-      "predicted_return": 0.9278808762397577,
+      "predicted_probability": 0.5342732071876526,
+      "predicted_price": 91836.3124416201,
+      "predicted_return": 1.0894047430161549,
       "confidence": "LOW"
     },
     {
       "day": 2,
-      "date": "2025-11-28",
+      "date": "2025-11-29",
       "predicted_direction": "UP",
-      "predicted_probability": 0.5103707313537598,
-      "predicted_price": 88565.79062698442,
-      "predicted_return": 0.9064236831781682,
+      "predicted_probability": 0.5323020219802856,
+      "predicted_price": 92833.09038383418,
+      "predicted_return": 1.0853854164143728,
       "confidence": "LOW"
     },
     {
       "day": 3,
-      "date": "2025-11-29",
+      "date": "2025-11-30",
       "predicted_direction": "UP",
-      "predicted_probability": 0.5003493428230286,
-      "predicted_price": 89352.80890982987,
-      "predicted_return": 0.8886255937805053,
+      "predicted_probability": 0.5294638872146606,
+      "predicted_price": 93835.3148907609,
+      "predicted_return": 1.0795983444942474,
       "confidence": "LOW"
     },
     {
       "day": 4,
-      "date": "2025-11-30",
-      "predicted_direction": "DOWN",
-      "predicted_probability": 0.4951643645763397,
-      "predicted_price": 88551.67761561241,
-      "predicted_return": -0.8965932957137515,
+      "date": "2025-12-01",
+      "predicted_direction": "UP",
+      "predicted_probability": 0.5200029611587524,
+      "predicted_price": 94830.2574273235,
+      "predicted_return": 1.0603071324701876,
       "confidence": "LOW"
     },
     {
       "day": 5,
-      "date": "2025-12-01",
-      "predicted_direction": "DOWN",
-      "predicted_probability": 0.49044671654701233,
-      "predicted_price": 87750.30982748099,
-      "predicted_return": -0.9049718872747106,
+      "date": "2025-12-02",
+      "predicted_direction": "UP",
+      "predicted_probability": 0.5053844451904297,
+      "predicted_price": 95807.4826472755,
+      "predicted_return": 1.030499385389667,
       "confidence": "LOW"
     },
     {
       "day": 6,
-      "date": "2025-12-02",
+      "date": "2025-12-03",
       "predicted_direction": "DOWN",
-      "predicted_probability": 0.4848635494709015,
-      "predicted_price": 86947.49308039216,
-      "predicted_return": -0.9148876495902805,
+      "predicted_probability": 0.4891217052936554,
+      "predicted_price": 94809.4545988346,
+      "predicted_return": -1.041701567418519,
       "confidence": "LOW"
     },
     {
       "day": 7,
-      "date": "2025-12-03",
+      "date": "2025-12-04",
       "predicted_direction": "DOWN",
-      "predicted_probability": 0.49482277035713196,
-      "predicted_price": 86167.40019806311,
-      "predicted_return": -0.8971999705704882,
+      "predicted_probability": 0.480403333902359,
+      "predicted_price": 93804.96864039566,
+      "predicted_return": -1.0594786803586382,
       "confidence": "LOW"
     }
   ],
   "trading_recommendation": {
-    "recommendation": "HOLD",
+    "recommendation": "STRONG BUY",
     "confidence": "MEDIUM",
-    "reasoning": "Mixed signals with 3/7 days predicted UP",
-    "total_return": -0.8907226499507995,
-    "bullish_days": 3,
-    "bearish_days": 4
+    "reasoning": "Bullish trend with 5/7 days predicted UP",
+    "total_return": 3.2440147740074723,
+    "bullish_days": 5,
+    "bearish_days": 2
   },
-  "model_used": "BiLSTM",
+  "model_used": "LSTM_Complex",
   "model_performance": {
-    "profit_score": 0.5880501636437008,
-    "accuracy": 0.5164835164835165
+    "profit_score": 0.5861047277083764,
+    "accuracy": 0.5027472527472527
   },
-  "generated_at": "2025-11-26T15:23:49.544432"
+  "generated_at": "2025-11-27T15:25:09.940155"
 }
