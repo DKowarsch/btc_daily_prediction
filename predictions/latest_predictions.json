@@ -1,82 +1,82 @@
 {
-  "current_price": 91466.6953125,
+  "current_price": 85308.015625,
   "predictions": [
     {
       "day": 1,
-      "date": "2025-12-01",
-      "predicted_direction": "DOWN",
-      "predicted_probability": 0.4878721833229065,
-      "predicted_price": 90837.77982766801,
-      "predicted_return": -0.6875896004368284,
+      "date": "2025-12-02",
+      "predicted_direction": "UP",
+      "predicted_probability": 0.5032224655151367,
+      "predicted_price": 86170.13077162931,
+      "predicted_return": 1.0105910216210114,
       "confidence": "LOW"
     },
     {
       "day": 2,
-      "date": "2025-12-02",
-      "predicted_direction": "DOWN",
-      "predicted_probability": 0.4964796304702759,
-      "predicted_price": 90223.68634355451,
-      "predicted_return": -0.6760331277124177,
+      "date": "2025-12-03",
+      "predicted_direction": "UP",
+      "predicted_probability": 0.5307589769363403,
+      "predicted_price": 87088.61037128312,
+      "predicted_return": 1.0658909200079918,
       "confidence": "LOW"
     },
     {
       "day": 3,
-      "date": "2025-12-03",
-      "predicted_direction": "DOWN",
-      "predicted_probability": 0.48462119698524475,
-      "predicted_price": 89599.3795599797,
-      "predicted_return": -0.6919544178205869,
+      "date": "2025-12-04",
+      "predicted_direction": "UP",
+      "predicted_probability": 0.5494289994239807,
+      "predicted_price": 88049.53285090452,
+      "predicted_return": 1.103384788808458,
       "confidence": "LOW"
     },
     {
       "day": 4,
-      "date": "2025-12-04",
-      "predicted_direction": "DOWN",
-      "predicted_probability": 0.48420923948287964,
-      "predicted_price": 88978.89712095782,
-      "predicted_return": -0.6925075174281927,
+      "date": "2025-12-05",
+      "predicted_direction": "UP",
+      "predicted_probability": 0.5478668808937073,
+      "predicted_price": 89018.29579451587,
+      "predicted_return": 1.1002476813270063,
       "confidence": "LOW"
     },
     {
       "day": 5,
-      "date": "2025-12-05",
-      "predicted_direction": "DOWN",
-      "predicted_probability": 0.49222204089164734,
-      "predicted_price": 88372.28400238896,
-      "predicted_return": -0.681749423960858,
+      "date": "2025-12-06",
+      "predicted_direction": "UP",
+      "predicted_probability": 0.553432047367096,
+      "predicted_price": 90007.66637919871,
+      "predicted_return": 1.1114238661304323,
       "confidence": "LOW"
     },
     {
       "day": 6,
-      "date": "2025-12-06",
-      "predicted_direction": "DOWN",
-      "predicted_probability": 0.4741910696029663,
-      "predicted_price": 87748.41275374035,
-      "predicted_return": -0.7059580452076302,
+      "date": "2025-12-07",
+      "predicted_direction": "UP",
+      "predicted_probability": 0.5568519830703735,
+      "predicted_price": 91014.21483489488,
+      "predicted_return": 1.118291914663829,
       "confidence": "LOW"
     },
     {
       "day": 7,
-      "date": "2025-12-07",
+      "date": "2025-12-08",
       "predicted_direction": "UP",
-      "predicted_probability": 0.5088372826576233,
-      "predicted_price": 88347.88506442234,
-      "predicted_return": 0.6831716858108438,
+      "predicted_probability": 0.5743848085403442,
+      "predicted_price": 92064.06564147591,
+      "predicted_return": 1.1535020199707584,
       "confidence": "LOW"
     }
   ],
   "trading_recommendation": {
-    "recommendation": "SELL",
+    "recommendation": "STRONG BUY",
     "confidence": "MEDIUM",
-    "reasoning": "Bearish trend with only 1/7 days predicted UP",
-    "total_return": -3.45262044675567,
-    "bullish_days": 1,
-    "bearish_days": 6
+    "reasoning": "Bullish trend with 7/7 days predicted UP",
+    "total_return": 7.663332212529488,
+    "bullish_days": 7,
+    "bearish_days": 0
   },
-  "model_used": "Dense_Wide",
+  "model_used": "BiLSTM",
   "model_performance": {
-    "profit_score": 0.5828527945738572,
-    "accuracy": 0.5164835164835165
+    "profit_score": 0.5786108213466602,
+    "accuracy": 0.5082417582417582
   },
-  "generated_at": "2025-11-30T15:22:19.063626"
+  "generated_at": "2025-12-01T15:27:34.668617"
 }
