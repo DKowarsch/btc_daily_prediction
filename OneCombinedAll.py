@@ -141,18 +141,25 @@ def run_portfolio_optimization():
     equal_weights = np.array([1/len(cov_matrix)] * len(cov_matrix))
     eq_return, eq_vol, eq_sharpe = portfolio_stats(equal_weights)
     
+    # FIX: Add epsilon to avoid division by zero
+    epsilon = 1e-10
+    return_improvement = (opt_return - eq_return) / (eq_return + epsilon) * 100
+    vol_improvement = (eq_vol - opt_vol) / (eq_vol + epsilon) * 100
+    sharpe_improvement = (opt_sharpe - eq_sharpe) / (eq_sharpe + epsilon) * 100
+    
     print("\n🏆 OPTIMAL PORTFOLIO ALLOCATION:")
     print("-" * 40)
     for i, asset in enumerate(cov_matrix.index):
         if optimal_weights[i] > 0.01:  # Only show weights > 1%
             print(f"  {asset}: {optimal_weights[i]:.3f} ({optimal_weights[i]*100:.1f}%)")
     
-    print(f"\n📊 PERFORMANCE COMPARISON:")
-    print(f"{'Metric':<15} {'Optimal':<12} {'Equal Weight':<12} {'Improvement':<12}")
-    print(f"{'-'*55}")
-    print(f"{'Volatility':<15} {opt_vol:.4f}{'':<8} {eq_vol:.4f}{'':<8} {(eq_vol-opt_vol)/eq_vol*100:+.1f}%")
-    print(f"{'Return':<15} {opt_return:.4f}{'':<8} {eq_return:.4f}{'':<8} {(opt_return-eq_return)/eq_return*100:+.1f}%")
-    print(f"{'Sharpe Ratio':<15} {opt_sharpe:.4f}{'':<8} {eq_sharpe:.4f}{'':<8} {(opt_sharpe-eq_sharpe)/eq_sharpe*100:+.1f}%")
+    print("\n📊 PERFORMANCE COMPARISON:")
+    print("-" * 40)
+    print(f"{'Metric':<15} {'Optimal':<12} {'Equal':<10} {'Improvement'}")
+    print("-" * 40)
+    print(f"{'Return':<15} {opt_return:.4f}{'':<8} {eq_return:.4f}{'':<8} {return_improvement:+.1f}%")
+    print(f"{'Volatility':<15} {opt_vol:.4f}{'':<8} {eq_vol:.4f}{'':<8} {vol_improvement:+.1f}%")
+    print(f"{'Sharpe Ratio':<15} {opt_sharpe:.4f}{'':<8} {eq_sharpe:.4f}{'':<8} {sharpe_improvement:+.1f}%")
     
     # Save portfolio results
     portfolio_results = {
