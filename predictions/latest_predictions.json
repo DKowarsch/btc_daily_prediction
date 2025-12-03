@@ -1,82 +1,82 @@
 {
-  "current_price": 90478.6328125,
+  "current_price": 92318.78125,
   "predictions": [
     {
       "day": 1,
-      "date": "2025-12-03",
+      "date": "2025-12-04",
       "predicted_direction": "UP",
-      "predicted_probability": 0.527623176574707,
-      "predicted_price": 91492.31143008942,
-      "predicted_return": 1.1203513869292183,
+      "predicted_probability": 0.5117123126983643,
+      "predicted_price": 93368.45193398977,
+      "predicted_return": 1.1370066521429123,
       "confidence": "LOW"
     },
     {
       "day": 2,
-      "date": "2025-12-04",
-      "predicted_direction": "UP",
-      "predicted_probability": 0.5203182697296143,
-      "predicted_price": 92503.15526529925,
-      "predicted_return": 1.1048401984927685,
+      "date": "2025-12-05",
+      "predicted_direction": "DOWN",
+      "predicted_probability": 0.49338793754577637,
+      "predicted_price": 92317.427474874,
+      "predicted_return": -1.125674076570122,
       "confidence": "LOW"
     },
     {
       "day": 3,
-      "date": "2025-12-05",
-      "predicted_direction": "UP",
-      "predicted_probability": 0.5086236000061035,
-      "predicted_price": 93502.19657411918,
-      "predicted_return": 1.0800078180627188,
+      "date": "2025-12-06",
+      "predicted_direction": "DOWN",
+      "predicted_probability": 0.4842161536216736,
+      "predicted_price": 91259.42040689035,
+      "predicted_return": -1.1460534559106959,
       "confidence": "LOW"
     },
     {
       "day": 4,
-      "date": "2025-12-06",
-      "predicted_direction": "UP",
-      "predicted_probability": 0.5147699117660522,
-      "predicted_price": 94524.2306122195,
-      "predicted_return": 1.0930588537459152,
+      "date": "2025-12-07",
+      "predicted_direction": "DOWN",
+      "predicted_probability": 0.4679122269153595,
+      "predicted_price": 90180.47834500113,
+      "predicted_return": -1.182280204146197,
       "confidence": "LOW"
     },
     {
       "day": 5,
-      "date": "2025-12-07",
-      "predicted_direction": "UP",
-      "predicted_probability": 0.508741557598114,
-      "predicted_price": 95545.33644794862,
-      "predicted_return": 1.0802582883939613,
+      "date": "2025-12-08",
+      "predicted_direction": "DOWN",
+      "predicted_probability": 0.46930068731307983,
+      "predicted_price": 89117.07456836548,
+      "predicted_return": -1.179195094272408,
       "confidence": "LOW"
     },
     {
       "day": 6,
-      "date": "2025-12-08",
-      "predicted_direction": "UP",
-      "predicted_probability": 0.5011968016624451,
-      "predicted_price": 96562.16604035988,
-      "predicted_return": 1.0642378060651825,
+      "date": "2025-12-09",
+      "predicted_direction": "DOWN",
+      "predicted_probability": 0.47859928011894226,
+      "predicted_price": 88084.62300416963,
+      "predicted_return": -1.1585339500836305,
       "confidence": "LOW"
     },
     {
       "day": 7,
-      "date": "2025-12-09",
-      "predicted_direction": "DOWN",
-      "predicted_probability": 0.4987458884716034,
-      "predicted_price": 95534.39745517907,
-      "predicted_return": -1.0643594974363242,
+      "date": "2025-12-10",
+      "predicted_direction": "UP",
+      "predicted_probability": 0.5101795196533203,
+      "predicted_price": 89083.15103066176,
+      "predicted_return": 1.1336008402339057,
       "confidence": "LOW"
     }
   ],
   "trading_recommendation": {
-    "recommendation": "STRONG BUY",
+    "recommendation": "SELL",
     "confidence": "MEDIUM",
-    "reasoning": "Bullish trend with 6/7 days predicted UP",
-    "total_return": 5.478394854253441,
-    "bullish_days": 6,
-    "bearish_days": 1
+    "reasoning": "Bearish trend with only 2/7 days predicted UP",
+    "total_return": -3.521129288606235,
+    "bullish_days": 2,
+    "bearish_days": 5
   },
   "model_used": "BiLSTM",
   "model_performance": {
-    "profit_score": 0.5867683427019434,
-    "accuracy": 0.5164835164835165
+    "profit_score": 0.5855854511260987,
+    "accuracy": 0.5274725274725275
   },
-  "generated_at": "2025-12-02T15:28:49.452304"
+  "generated_at": "2025-12-03T15:28:40.474526"
 }
