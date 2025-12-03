@@ -765,6 +765,146 @@ def run_prediction():
         print(f"🔍 Detailed error: {traceback.format_exc()}")
         return False
     
+def create_dashboard_html():
+    """Create dashboard.html with portfolio and prediction data"""
+    try:
+        print("\n🖥️  Creating dashboard.html...")
+        
+        # Read generated data
+        with open('portfolio/optimization_results.json', 'r') as f:
+            portfolio_data = json.load(f)
+        
+        with open('predictions/latest_predictions.json', 'r') as f:
+            predictions_data = json.load(f)
+        
+        # Create HTML dashboard - SIMPLIFIED VERSION
+        html_content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 AI Financial Analytics Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; line-height: 1.6; min-height: 100vh; padding: 20px; }}
+        .container {{ max-width: 1400px; margin: 0 auto; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }}
+        .header {{ text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee; }}
+        .header h1 {{ color: #2c3e50; font-size: 2.5em; margin-bottom: 10px; }}
+        .header p {{ color: #7f8c8d; font-size: 1.1em; }}
+        .update-info {{ background: #2c3e50; color: white; padding: 15px; border-radius: 10px; text-align: center; margin: 20px 0; }}
+        .dashboard-grid {{ display: grid; grid-template-columns: 1fr; gap: 30px; margin-bottom: 30px; }}
+        .card {{ background: #f8f9fa; border-radius: 10px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }}
+        .card h2 {{ color: #2c3e50; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }}
+        .metric-grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0; }}
+        .metric {{ background: white; padding: 15px; border-radius: 8px; text-align: center; border-left: 4px solid #3498db; }}
+        .metric .value {{ font-size: 1.8em; font-weight: bold; color: #2c3e50; margin: 5px 0; }}
+        .metric .label {{ font-size: 0.9em; color: #7f8c8d; }}
+        .prediction-day {{ background: white; padding: 15px; border-radius: 10px; text-align: center; margin: 10px 0; border: 3px solid #e9ecef; }}
+        .prediction-day.up {{ border-color: #27ae60; background: linear-gradient(135deg, #d5f4e6, #27ae60); color: white; }}
+        .prediction-day.down {{ border-color: #e74c3c; background: linear-gradient(135deg, #fadbd8, #e74c3c); color: white; }}
+        .footer {{ text-align: center; margin-top: 40px; color: #7f8c8d; font-size: 0.9em; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-rocket"></i> AI Financial Analytics Dashboard</h1>
+            <p>Riverside Data Solutions, LLC & DeepSeek-powered Portfolio Optimization & BTC Predictions</p>
+        </div>
+        
+        <div class="update-info">
+            <p><i class="fas fa-sync-alt"></i> Next update: <span id="next-update">Calculating...</span></p>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <h2><i class="fas fa-chart-pie"></i> Portfolio Optimization</h2>
+                <div class="metric-grid">
+                    <div class="metric">
+                        <div class="label">Optimal Volatility</div>
+                        <div class="value">{portfolio_data['performance']['optimal_volatility']*100:.1f}%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">Expected Return</div>
+                        <div class="value">{portfolio_data['performance']['optimal_return']*100:.1f}%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">Sharpe Ratio</div>
+                        <div class="value">{portfolio_data['performance']['optimal_sharpe']:.3f}</div>
+                    </div>
+                </div>
+                <h3>Current Price: ${predictions_data['current_price']:,.2f}</h3>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-bitcoin"></i> BTC 7-Day Predictions</h2>
+                <h3>Model: {predictions_data['model_used']} | Profit Score: {predictions_data['model_performance']['profit_score']:.4f} | Accuracy: {predictions_data['model_performance']['accuracy']*100:.1f}%</h3>
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin: 20px 0;">
+                    {''.join([f'''
+                    <div class="prediction-day {'up' if p['predicted_direction'] == 'UP' else 'down'}">
+                        <div style="font-weight: bold; font-size: 1.2em;">Day {p['day']}</div>
+                        <div style="font-size: 0.9em; opacity: 0.9;">{p['date']}</div>
+                        <div style="font-weight: bold; margin: 5px 0;">${p['predicted_price']:,.2f}</div>
+                        <div style="font-weight: bold; color: {'#2ecc71' if p['predicted_return'] >= 0 else '#e74c3c'}">
+                            {p['predicted_return']:+.2f}%
+                        </div>
+                        <div style="font-size: 0.8em; margin-top: 5px;">{p['confidence']}</div>
+                    </div>
+                    ''' for p in predictions_data['predictions']])}
+                </div>
+                <div class="update-info">
+                    <h3>Recommendation: {predictions_data['trading_recommendation']['recommendation']}</h3>
+                    <p>{predictions_data['trading_recommendation']['reasoning']}</p>
+                    <p>Total 7-Day Return: {predictions_data['trading_recommendation']['total_return']:+.2f}%</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><i class="fas fa-robot"></i> Powered by Riverside Data Solutions, LLC & AI • Updated daily at 15:00 UTC</p>
+            <p>Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
+        </div>
+    </div>
+    
+    <script>
+        // Countdown timer
+        function calculateNextUpdate() {{
+            const now = new Date();
+            const nextUpdate = new Date();
+            nextUpdate.setUTCHours(15, 0, 0, 0);
+            if (now.getUTCHours() >= 15) {{
+                nextUpdate.setUTCDate(nextUpdate.getUTCDate() + 1);
+            }}
+            const timeUntilUpdate = nextUpdate - now;
+            const hours = Math.floor(timeUntilUpdate / (1000 * 60 * 60));
+            const minutes = Math.floor((timeUntilUpdate % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById('next-update').textContent = `in ${{hours}}h ${{minutes}}m (${{nextUpdate.toUTCString()}})`;
+        }}
+        document.addEventListener('DOMContentLoaded', function() {{
+            calculateNextUpdate();
+            setInterval(calculateNextUpdate, 60000);
+        }});
+    </script>
+</body>
+</html>"""
+        
+        # Save dashboard.html to reports directory
+        os.makedirs('reports', exist_ok=True)
+        with open('reports/dashboard.html', 'w') as f:
+            f.write(html_content)
+        print("✅ Created reports/dashboard.html")
+        
+        # Also copy to root as index.html for GitHub Pages
+        with open('index.html', 'w') as f:
+            f.write(html_content)
+        print("✅ Created index.html (for GitHub Pages)")
+        
+    except Exception as e:
+        print(f"❌ Failed to create dashboard: {e}")
+        import traceback
+        traceback.print_exc()
+
 
 # ==================== MAIN FUNCTION ====================
 
@@ -789,10 +929,14 @@ def main():
         
         run_prediction()
         
+        # ADD THIS LINE - Create dashboard HTML
+        create_dashboard_html()
+        
         print(f"\n📁 All results saved:")
         print(f"   - Portfolio: portfolio/optimization_results.json")
         print(f"   - Models: models/")
         print(f"   - Reports: reports/")
+        print(f"   - Dashboard: reports/dashboard.html & index.html")
         
     except Exception as e:
         print(f"❌ Process failed: {e}")
