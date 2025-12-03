@@ -37,11 +37,24 @@ jobs:
         echo "📁 Directory contents:"
         ls -la models/ reports/ predictions/ portfolio/ training_results/ || echo "Some directories missing"
         
+    - name: Ensure index.html exists
+      run: |
+        # If dashboard.html exists, rename it to index.html
+        if [ -f "dashboard.html" ]; then
+          mv dashboard.html index.html
+          echo "Renamed dashboard.html to index.html"
+        fi
+        
+        # If index.html doesn't exist, create a minimal one
+        if [ ! -f "index.html" ]; then
+          echo '<html><body><h1>BTC Predictions Dashboard</h1><p>Loading...</p></body></html>' > index.html
+        fi
+        
     - name: Commit and push results
       run: |
         git config --local user.name "github-actions"
         git config --local user.email "actions@users.noreply.github.com"
-        git add models/ reports/ predictions/ portfolio/ training_results/
+        git add models/ reports/ predictions/ portfolio/ training_results/ index.html
         git commit -m "🤖 Auto-update: BTC predictions $(date +%Y-%m-%d)" || exit 0
         git push
         
