@@ -39,13 +39,21 @@ jobs:
         
     - name: Ensure index.html exists
       run: |
-        # If dashboard.html exists, rename it to index.html
+        # Check if dashboard.html exists in reports directory
+        if [ -f "reports/dashboard.html" ]; then
+          echo "Found dashboard.html in reports directory"
+          # Copy it to root as index.html
+          cp reports/dashboard.html index.html
+          echo "Copied reports/dashboard.html to index.html"
+        fi
+        
+        # Also check root directory
         if [ -f "dashboard.html" ]; then
           mv dashboard.html index.html
           echo "Renamed dashboard.html to index.html"
         fi
         
-        # If index.html doesn't exist, create a minimal one
+        # If still no index.html, create minimal one
         if [ ! -f "index.html" ]; then
           echo '<html><body><h1>BTC Predictions Dashboard</h1><p>Loading...</p></body></html>' > index.html
         fi
@@ -54,7 +62,7 @@ jobs:
       run: |
         git config --local user.name "github-actions"
         git config --local user.email "actions@users.noreply.github.com"
-        git add .
+        git add models/ reports/ predictions/ portfolio/ training_results/ index.html reports/dashboard.html
         git commit -m "🤖 Auto-update: BTC predictions $(date +%Y-%m-%d)" || exit 0
         git push
         
