@@ -738,6 +738,7 @@ def run_prediction():
         # Also save as CSV
         predictions_df = pd.DataFrame(predictions)
         predictions_df.to_csv('predictions/latest_predictions.csv', index=False)
+        create_prediction_visualization(prediction_data, 'predictions/prediction_visualization.png')
         
         # Display results
         print(f"\n🏆 Using best model: {model_info['best_model_name']}")
@@ -765,145 +766,152 @@ def run_prediction():
         print(f"🔍 Detailed error: {traceback.format_exc()}")
         return False
     
-def create_dashboard_html():
-    """Create dashboard.html with portfolio and prediction data"""
+def create_prediction_visualization(prediction_data, output_path='predictions/prediction_visualization.png'):
+    """Create visualization for predictions"""
     try:
-        print("\n🖥️  Creating dashboard.html...")
+        print("📊 Creating prediction visualization...")
         
-        # Read generated data
-        with open('portfolio/optimization_results.json', 'r') as f:
-            portfolio_data = json.load(f)
+        # Create predictions directory if it doesn't exist
+        os.makedirs('predictions', exist_ok=True)
         
-        with open('predictions/latest_predictions.json', 'r') as f:
-            predictions_data = json.load(f)
+        # Extract data
+        predictions = prediction_data['predictions']
+        days = [p['day'] for p in predictions]
+        predicted_prices = [p['predicted_price'] for p in predictions]
+        predicted_returns = [p['predicted_return'] for p in predictions]
+        directions = [p['predicted_direction'] for p in predictions]
+        confidences = [p['confidence'] for p in predictions]
         
-        # Create HTML dashboard - SIMPLIFIED VERSION
-        html_content = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 AI Financial Analytics Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; line-height: 1.6; min-height: 100vh; padding: 20px; }}
-        .container {{ max-width: 1400px; margin: 0 auto; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }}
-        .header {{ text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee; }}
-        .header h1 {{ color: #2c3e50; font-size: 2.5em; margin-bottom: 10px; }}
-        .header p {{ color: #7f8c8d; font-size: 1.1em; }}
-        .update-info {{ background: #2c3e50; color: white; padding: 15px; border-radius: 10px; text-align: center; margin: 20px 0; }}
-        .dashboard-grid {{ display: grid; grid-template-columns: 1fr; gap: 30px; margin-bottom: 30px; }}
-        .card {{ background: #f8f9fa; border-radius: 10px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }}
-        .card h2 {{ color: #2c3e50; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }}
-        .metric-grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0; }}
-        .metric {{ background: white; padding: 15px; border-radius: 8px; text-align: center; border-left: 4px solid #3498db; }}
-        .metric .value {{ font-size: 1.8em; font-weight: bold; color: #2c3e50; margin: 5px 0; }}
-        .metric .label {{ font-size: 0.9em; color: #7f8c8d; }}
-        .prediction-day {{ background: white; padding: 15px; border-radius: 10px; text-align: center; margin: 10px 0; border: 3px solid #e9ecef; }}
-        .prediction-day.up {{ border-color: #27ae60; background: linear-gradient(135deg, #d5f4e6, #27ae60); color: white; }}
-        .prediction-day.down {{ border-color: #e74c3c; background: linear-gradient(135deg, #fadbd8, #e74c3c); color: white; }}
-        .footer {{ text-align: center; margin-top: 40px; color: #7f8c8d; font-size: 0.9em; }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-rocket"></i> AI Financial Analytics Dashboard</h1>
-            <p>Riverside Data Solutions, LLC & DeepSeek-powered Portfolio Optimization & BTC Predictions</p>
-        </div>
+        current_price = prediction_data['current_price']
         
-        <div class="update-info">
-            <p><i class="fas fa-sync-alt"></i> Next update: <span id="next-update">Calculating...</span></p>
-        </div>
+        # Create figure with subplots
+        fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+        fig.suptitle(f'BTC 7-Day Price Predictions\nCurrent Price: ${current_price:,.2f}', 
+                    fontsize=16, fontweight='bold', y=1.02)
         
-        <div class="dashboard-grid">
-            <div class="card">
-                <h2><i class="fas fa-chart-pie"></i> Portfolio Optimization</h2>
-                <div class="metric-grid">
-                    <div class="metric">
-                        <div class="label">Optimal Volatility</div>
-                        <div class="value">{portfolio_data['performance']['optimal_volatility']*100:.1f}%</div>
-                    </div>
-                    <div class="metric">
-                        <div class="label">Expected Return</div>
-                        <div class="value">{portfolio_data['performance']['optimal_return']*100:.1f}%</div>
-                    </div>
-                    <div class="metric">
-                        <div class="label">Sharpe Ratio</div>
-                        <div class="value">{portfolio_data['performance']['optimal_sharpe']:.3f}</div>
-                    </div>
-                </div>
-                <h3>Current Price: ${predictions_data['current_price']:,.2f}</h3>
-            </div>
-            
-            <div class="card">
-                <h2><i class="fas fa-bitcoin"></i> BTC 7-Day Predictions</h2>
-                <h3>Model: {predictions_data['model_used']} | Profit Score: {predictions_data['model_performance']['profit_score']:.4f} | Accuracy: {predictions_data['model_performance']['accuracy']*100:.1f}%</h3>
-                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin: 20px 0;">
-                    {''.join([f'''
-                    <div class="prediction-day {'up' if p['predicted_direction'] == 'UP' else 'down'}">
-                        <div style="font-weight: bold; font-size: 1.2em;">Day {p['day']}</div>
-                        <div style="font-size: 0.9em; opacity: 0.9;">{p['date']}</div>
-                        <div style="font-weight: bold; margin: 5px 0;">${p['predicted_price']:,.2f}</div>
-                        <div style="font-weight: bold; color: {'#2ecc71' if p['predicted_return'] >= 0 else '#e74c3c'}">
-                            {p['predicted_return']:+.2f}%
-                        </div>
-                        <div style="font-size: 0.8em; margin-top: 5px;">{p['confidence']}</div>
-                    </div>
-                    ''' for p in predictions_data['predictions']])}
-                </div>
-                <div class="update-info">
-                    <h3>Recommendation: {predictions_data['trading_recommendation']['recommendation']}</h3>
-                    <p>{predictions_data['trading_recommendation']['reasoning']}</p>
-                    <p>Total 7-Day Return: {predictions_data['trading_recommendation']['total_return']:+.2f}%</p>
-                </div>
-            </div>
-        </div>
+        # 1. Price prediction chart
+        ax1 = axes[0, 0]
+        colors = ['green' if d == 'UP' else 'red' for d in directions]
+        bars = ax1.bar(range(len(days)), predicted_prices, color=colors, alpha=0.7, tick_label=[f'Day {d}' for d in days])
         
-        <div class="footer">
-            <p><i class="fas fa-robot"></i> Powered by Riverside Data Solutions, LLC & AI • Updated daily at 15:00 UTC</p>
-            <p>Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
-        </div>
-    </div>
-    
-    <script>
-        // Countdown timer
-        function calculateNextUpdate() {{
-            const now = new Date();
-            const nextUpdate = new Date();
-            nextUpdate.setUTCHours(15, 0, 0, 0);
-            if (now.getUTCHours() >= 15) {{
-                nextUpdate.setUTCDate(nextUpdate.getUTCDate() + 1);
-            }}
-            const timeUntilUpdate = nextUpdate - now;
-            const hours = Math.floor(timeUntilUpdate / (1000 * 60 * 60));
-            const minutes = Math.floor((timeUntilUpdate % (1000 * 60 * 60)) / (1000 * 60));
-            document.getElementById('next-update').textContent = `in ${{hours}}h ${{minutes}}m (${{nextUpdate.toUTCString()}})`;
-        }}
-        document.addEventListener('DOMContentLoaded', function() {{
-            calculateNextUpdate();
-            setInterval(calculateNextUpdate, 60000);
-        }});
-    </script>
-</body>
-</html>"""
+        # Add current price reference line
+        ax1.axhline(y=current_price, color='blue', linestyle='--', alpha=0.5, 
+                   label=f'Current: ${current_price:,.2f}')
         
-        # Save dashboard.html to reports directory
-        os.makedirs('reports', exist_ok=True)
-        with open('reports/dashboard.html', 'w') as f:
-            f.write(html_content)
-        print("✅ Created reports/dashboard.html")
+        # Add value labels on bars
+        for i, (bar, price) in enumerate(zip(bars, predicted_prices)):
+            height = bar.get_height()
+            ax1.text(bar.get_x() + bar.get_width()/2., height,
+                    f'${price:,.0f}',
+                    ha='center', va='bottom', fontweight='bold')
         
-        # Also copy to root as index.html for GitHub Pages
-        with open('index.html', 'w') as f:
-            f.write(html_content)
-        print("✅ Created index.html (for GitHub Pages)")
+        ax1.set_xlabel('Day')
+        ax1.set_ylabel('Predicted Price ($)')
+        ax1.set_title('Predicted Price for Next 7 Days')
+        ax1.legend()
+        ax1.grid(True, alpha=0.3)
+        
+        # 2. Daily returns chart
+        ax2 = axes[0, 1]
+        colors_returns = ['green' if r > 0 else 'red' for r in predicted_returns]
+        bars2 = ax2.bar(range(len(days)), predicted_returns, color=colors_returns, alpha=0.7)
+        
+        # Add value labels
+        for i, (bar, ret) in enumerate(zip(bars2, predicted_returns)):
+            height = bar.get_height()
+            va = 'bottom' if ret >= 0 else 'top'
+            ax2.text(bar.get_x() + bar.get_width()/2., height,
+                    f'{ret:+.2f}%',
+                    ha='center', va=va, fontweight='bold')
+        
+        ax2.axhline(y=0, color='black', linestyle='-', alpha=0.3)
+        ax2.set_xlabel('Day')
+        ax2.set_ylabel('Predicted Return (%)')
+        ax2.set_title('Daily Predicted Returns')
+        ax2.set_xticks(range(len(days)))
+        ax2.set_xticklabels([f'Day {d}' for d in days])
+        ax2.grid(True, alpha=0.3)
+        
+        # 3. Confidence levels (heatmap style)
+        ax3 = axes[1, 0]
+        confidence_values = []
+        for conf in confidences:
+            if conf == 'HIGH':
+                confidence_values.append(3)
+            elif conf == 'MEDIUM':
+                confidence_values.append(2)
+            else:
+                confidence_values.append(1)
+        
+        colors_confidence = ['red', 'orange', 'green']
+        conf_colors = [colors_confidence[v-1] for v in confidence_values]
+        
+        bars3 = ax3.bar(range(len(days)), confidence_values, color=conf_colors, alpha=0.7)
+        
+        # Add confidence labels
+        for i, (bar, conf) in enumerate(zip(bars3, confidences)):
+            height = bar.get_height()
+            ax3.text(bar.get_x() + bar.get_width()/2., height/2,
+                    conf,
+                    ha='center', va='center', fontweight='bold', color='white')
+        
+        ax3.set_xlabel('Day')
+        ax3.set_ylabel('Confidence Level')
+        ax3.set_title('Prediction Confidence Levels')
+        ax3.set_xticks(range(len(days)))
+        ax3.set_xticklabels([f'Day {d}' for d in days])
+        ax3.set_yticks([1, 2, 3])
+        ax3.set_yticklabels(['LOW', 'MEDIUM', 'HIGH'])
+        ax3.set_ylim(0, 4)
+        
+        # 4. Cumulative return
+        ax4 = axes[1, 1]
+        cumulative_returns = np.cumsum(predicted_returns)
+        
+        # Create line with markers
+        line = ax4.plot(range(len(days)), cumulative_returns, marker='o', 
+                       linewidth=2, markersize=8, color='purple')[0]
+        
+        # Fill under the line
+        ax4.fill_between(range(len(days)), 0, cumulative_returns, alpha=0.2, color='purple')
+        
+        # Add value labels
+        for i, (day, cum_ret) in enumerate(zip(days, cumulative_returns)):
+            ax4.text(i, cum_ret + (0.5 if cum_ret >= 0 else -0.5),
+                    f'{cum_ret:+.2f}%',
+                    ha='center', va='bottom' if cum_ret >= 0 else 'top',
+                    fontweight='bold')
+        
+        ax4.axhline(y=0, color='black', linestyle='-', alpha=0.3)
+        ax4.set_xlabel('Day')
+        ax4.set_ylabel('Cumulative Return (%)')
+        ax4.set_title('Cumulative Return Over 7 Days')
+        ax4.set_xticks(range(len(days)))
+        ax4.set_xticklabels([f'Day {d}' for d in days])
+        ax4.grid(True, alpha=0.3)
+        
+        # Add overall recommendation as text box
+        recommendation = prediction_data['trading_recommendation']['recommendation']
+        reasoning = prediction_data['trading_recommendation']['reasoning']
+        total_return = prediction_data['trading_recommendation']['total_return']
+        
+        plt.figtext(0.5, 0.01, 
+                   f"Overall Recommendation: {recommendation} | Total 7-Day Return: {total_return:+.2f}%\n{reasoning}",
+                   ha='center', fontsize=12, bbox=dict(boxstyle="round,pad=0.5", 
+                   facecolor="lightblue", alpha=0.5))
+        
+        plt.tight_layout()
+        plt.savefig(output_path, dpi=150, bbox_inches='tight')
+        plt.close()
+        
+        print(f"✅ Visualization saved to {output_path}")
+        return True
         
     except Exception as e:
-        print(f"❌ Failed to create dashboard: {e}")
+        print(f"❌ Error creating visualization: {e}")
         import traceback
         traceback.print_exc()
+        return False
 
 
 # ==================== MAIN FUNCTION ====================
