@@ -1,0 +1,38 @@
+{
+  "GRU_Tiny": {
+    "test_accuracy": 0.47527472527472525,
+    "test_precision": 0.46835443037974683,
+    "test_recall": 0.4088397790055249,
+    "test_f1": 0.4365781710914454,
+    "test_profit_score": 0.5560468941599458,
+    "training_date": "2025-12-04T01:37:43.221899",
+    "parameters": 705
+  },
+  "LSTM_Complex": {
+    "test_accuracy": 0.4945054945054945,
+    "test_precision": 0.4745762711864407,
+    "test_recall": 0.15469613259668508,
+    "test_f1": 0.23333333333333334,
+    "test_profit_score": 0.5883326152523796,
+    "training_date": "2025-12-04T01:37:51.595745",
+    "parameters": 9969
+  },
+  "BiLSTM": {
+    "test_accuracy": 0.489010989010989,
+    "test_precision": 0.48175182481751827,
+    "test_recall": 0.36464088397790057,
+    "test_f1": 0.41509433962264153,
+    "test_profit_score": 0.5724708202121022,
+    "training_date": "2025-12-04T01:38:00.142349",
+    "parameters": 4881
+  },
+  "Dense_Wide": {
+    "test_accuracy": 0.5082417582417582,
+    "test_precision": 0.5042372881355932,
+    "test_recall": 0.6574585635359116,
+    "test_f1": 0.5707434052757794,
+    "test_profit_score": 0.5725402068305802,
+    "training_date": "2025-12-04T01:38:04.094948",
+    "parameters": 34817
+  }
+}

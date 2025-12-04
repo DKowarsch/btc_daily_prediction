@@ -1,0 +1,82 @@
+{
+  "current_price": 93448.3203125,
+  "predictions": [
+    {
+      "day": 1,
+      "date": "2025-12-05",
+      "predicted_direction": "DOWN",
+      "predicted_probability": 0.49285459518432617,
+      "predicted_price": 92377.35326295493,
+      "predicted_return": -1.1460527551096156,
+      "confidence": "LOW"
+    },
+    {
+      "day": 2,
+      "date": "2025-12-06",
+      "predicted_direction": "DOWN",
+      "predicted_probability": 0.4928268492221832,
+      "predicted_price": 91318.60213960506,
+      "predicted_return": -1.1461154557395634,
+      "confidence": "LOW"
+    },
+    {
+      "day": 3,
+      "date": "2025-12-07",
+      "predicted_direction": "DOWN",
+      "predicted_probability": 0.4928268492221832,
+      "predicted_price": 90271.98552651773,
+      "predicted_return": -1.1461154557395634,
+      "confidence": "LOW"
+    },
+    {
+      "day": 4,
+      "date": "2025-12-08",
+      "predicted_direction": "DOWN",
+      "predicted_probability": 0.4928268492221832,
+      "predicted_price": 89237.36434819533,
+      "predicted_return": -1.1461154557395634,
+      "confidence": "LOW"
+    },
+    {
+      "day": 5,
+      "date": "2025-12-09",
+      "predicted_direction": "DOWN",
+      "predicted_probability": 0.4928268492221832,
+      "predicted_price": 88214.60112310604,
+      "predicted_return": -1.1461154557395634,
+      "confidence": "LOW"
+    },
+    {
+      "day": 6,
+      "date": "2025-12-10",
+      "predicted_direction": "DOWN",
+      "predicted_probability": 0.4928268492221832,
+      "predicted_price": 87203.55994541512,
+      "predicted_return": -1.1461154557395634,
+      "confidence": "LOW"
+    },
+    {
+      "day": 7,
+      "date": "2025-12-11",
+      "predicted_direction": "DOWN",
+      "predicted_probability": 0.4928268492221832,
+      "predicted_price": 86204.1064669256,
+      "predicted_return": -1.1461154557395634,
+      "confidence": "LOW"
+    }
+  ],
+  "trading_recommendation": {
+    "recommendation": "SELL",
+    "confidence": "MEDIUM",
+    "reasoning": "Bearish trend with only 0/7 days predicted UP",
+    "total_return": -8.022745489546995,
+    "bullish_days": 0,
+    "bearish_days": 7
+  },
+  "model_used": "LSTM_Complex",
+  "model_performance": {
+    "profit_score": 0.5883326152523796,
+    "accuracy": 0.4945054945054945
+  },
+  "generated_at": "2025-12-04T01:38:04.854557"
+}

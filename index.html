@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 AI Financial Analytics Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; line-height: 1.6; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee; }
+        .header h1 { color: #2c3e50; font-size: 2.5em; margin-bottom: 10px; }
+        .header p { color: #7f8c8d; font-size: 1.1em; }
+        .update-info { background: #2c3e50; color: white; padding: 15px; border-radius: 10px; text-align: center; margin: 20px 0; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 30px; margin-bottom: 30px; }
+        .card { background: #f8f9fa; border-radius: 10px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .card h2 { color: #2c3e50; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0; }
+        .metric { background: white; padding: 15px; border-radius: 8px; text-align: center; border-left: 4px solid #3498db; }
+        .metric .value { font-size: 1.8em; font-weight: bold; color: #2c3e50; margin: 5px 0; }
+        .metric .label { font-size: 0.9em; color: #7f8c8d; }
+        .prediction-day { background: white; padding: 15px; border-radius: 10px; text-align: center; margin: 10px 0; border: 3px solid #e9ecef; }
+        .prediction-day.up { border-color: #27ae60; background: linear-gradient(135deg, #d5f4e6, #27ae60); color: white; }
+        .prediction-day.down { border-color: #e74c3c; background: linear-gradient(135deg, #fadbd8, #e74c3c); color: white; }
+        .footer { text-align: center; margin-top: 40px; color: #7f8c8d; font-size: 0.9em; }
+        .visualization { text-align: center; margin: 20px 0; }
+        .visualization img { max-width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-rocket"></i> AI Financial Analytics Dashboard</h1>
+            <p>Riverside Data Solutions, LLC & DeepSeek-powered Portfolio Optimization & BTC Predictions</p>
+        </div>
+        
+        <div class="update-info">
+            <p><i class="fas fa-sync-alt"></i> Next update: <span id="next-update">Calculating...</span></p>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <h2><i class="fas fa-chart-pie"></i> Portfolio Optimization</h2>
+                <div class="metric-grid">
+                    <div class="metric">
+                        <div class="label">Optimal Volatility</div>
+                        <div class="value">26.1%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">Expected Return</div>
+                        <div class="value">8.9%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">Sharpe Ratio</div>
+                        <div class="value">0.341</div>
+                    </div>
+                </div>
+                <h3>Current BTC Price: $93,448.32</h3>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-bitcoin"></i> BTC 7-Day Predictions</h2>
+                <h3>Model: LSTM_Complex | Profit Score: 0.5883 | Accuracy: 49.5%</h3>
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin: 20px 0;">
+                    
+                    <div class="prediction-day down">
+                        <div style="font-weight: bold; font-size: 1.2em;">Day 1</div>
+                        <div style="font-size: 0.9em; opacity: 0.9;">2025-12-05</div>
+                        <div style="font-weight: bold; margin: 5px 0;">$92,377.35</div>
+                        <div style="font-weight: bold; color: #e74c3c">
+                            -1.15%
+                        </div>
+                        <div style="font-size: 0.8em; margin-top: 5px;">LOW</div>
+                    </div>
+                    
+                    <div class="prediction-day down">
+                        <div style="font-weight: bold; font-size: 1.2em;">Day 2</div>
+                        <div style="font-size: 0.9em; opacity: 0.9;">2025-12-06</div>
+                        <div style="font-weight: bold; margin: 5px 0;">$91,318.60</div>
+                        <div style="font-weight: bold; color: #e74c3c">
+                            -1.15%
+                        </div>
+                        <div style="font-size: 0.8em; margin-top: 5px;">LOW</div>
+                    </div>
+                    
+                    <div class="prediction-day down">
+                        <div style="font-weight: bold; font-size: 1.2em;">Day 3</div>
+                        <div style="font-size: 0.9em; opacity: 0.9;">2025-12-07</div>
+                        <div style="font-weight: bold; margin: 5px 0;">$90,271.99</div>
+                        <div style="font-weight: bold; color: #e74c3c">
+                            -1.15%
+                        </div>
+                        <div style="font-size: 0.8em; margin-top: 5px;">LOW</div>
+                    </div>
+                    
+                    <div class="prediction-day down">
+                        <div style="font-weight: bold; font-size: 1.2em;">Day 4</div>
+                        <div style="font-size: 0.9em; opacity: 0.9;">2025-12-08</div>
+                        <div style="font-weight: bold; margin: 5px 0;">$89,237.36</div>
+                        <div style="font-weight: bold; color: #e74c3c">
+                            -1.15%
+                        </div>
+                        <div style="font-size: 0.8em; margin-top: 5px;">LOW</div>
+                    </div>
+                    
+                    <div class="prediction-day down">
+                        <div style="font-weight: bold; font-size: 1.2em;">Day 5</div>
+                        <div style="font-size: 0.9em; opacity: 0.9;">2025-12-09</div>
+                        <div style="font-weight: bold; margin: 5px 0;">$88,214.60</div>
+                        <div style="font-weight: bold; color: #e74c3c">
+                            -1.15%
+                        </div>
+                        <div style="font-size: 0.8em; margin-top: 5px;">LOW</div>
+                    </div>
+                    
+                    <div class="prediction-day down">
+                        <div style="font-weight: bold; font-size: 1.2em;">Day 6</div>
+                        <div style="font-size: 0.9em; opacity: 0.9;">2025-12-10</div>
+                        <div style="font-weight: bold; margin: 5px 0;">$87,203.56</div>
+                        <div style="font-weight: bold; color: #e74c3c">
+                            -1.15%
+                        </div>
+                        <div style="font-size: 0.8em; margin-top: 5px;">LOW</div>
+                    </div>
+                    
+                    <div class="prediction-day down">
+                        <div style="font-weight: bold; font-size: 1.2em;">Day 7</div>
+                        <div style="font-size: 0.9em; opacity: 0.9;">2025-12-11</div>
+                        <div style="font-weight: bold; margin: 5px 0;">$86,204.11</div>
+                        <div style="font-weight: bold; color: #e74c3c">
+                            -1.15%
+                        </div>
+                        <div style="font-size: 0.8em; margin-top: 5px;">LOW</div>
+                    </div>
+                    
+                </div>
+                <div class="update-info">
+                    <h3>Recommendation: SELL</h3>
+                    <p>Bearish trend with only 0/7 days predicted UP</p>
+                    <p>Total 7-Day Return: -8.02%</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-chart-line"></i> Prediction Visualization</h2>
+                <div class="visualization">
+                    <img src="predictions/prediction_visualization.png" alt="BTC Prediction Chart">
+                    <p style="margin-top: 10px; color: #7f8c8d; font-size: 0.9em;">
+                        <i class="fas fa-info-circle"></i> Visualization updated daily at 7 AM PST
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><i class="fas fa-robot"></i> Powered by Riverside Data Solutions, LLC & AI • Updated daily at 15:00 UTC</p>
+            <p>Last update: 2025-12-04 01:38:05 UTC</p>
+        </div>
+    </div>
+    
+    <script>
+        // Countdown timer
+        function calculateNextUpdate() {
+            const now = new Date();
+            const nextUpdate = new Date();
+            nextUpdate.setUTCHours(15, 0, 0, 0);
+            if (now.getUTCHours() >= 15) {
+                nextUpdate.setUTCDate(nextUpdate.getUTCDate() + 1);
+            }
+            const timeUntilUpdate = nextUpdate - now;
+            const hours = Math.floor(timeUntilUpdate / (1000 * 60 * 60));
+            const minutes = Math.floor((timeUntilUpdate % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById('next-update').textContent = `in ${hours}h ${minutes}m (${nextUpdate.toUTCString()})`;
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateNextUpdate();
+            setInterval(calculateNextUpdate, 60000);
+        });
+    </script>
+</body>
+</html>
