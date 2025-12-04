@@ -922,6 +922,13 @@ def main():
         print("🚀 STARTING COMPREHENSIVE ANALYSIS")
         print("="*60)
         
+        # PROTECTION: Check if index.html exists and back it up
+        if os.path.exists('index.html'):
+            print("🔒 Found existing index.html - backing up...")
+            import shutil
+            shutil.copy2('index.html', 'index.html.backup')
+            print("✅ Backup created: index.html.backup")
+        
         # Run portfolio optimization
         portfolio_results = run_portfolio_optimization()
         
@@ -948,6 +955,28 @@ def main():
         except Exception as e:
             print(f"⚠️ Could not generate markdown report: {e}")
         
+        # RESTORE: Check if index.html was overwritten and restore from backup
+        if os.path.exists('index.html.backup'):
+            print("🔄 Checking if index.html needs restoration...")
+            # Check if index.html was modified (compare timestamps)
+            if os.path.exists('index.html'):
+                backup_time = os.path.getmtime('index.html.backup')
+                current_time = os.path.getmtime('index.html')
+                
+                if current_time > backup_time:  # File was modified
+                    print("⚠️  index.html was modified, restoring from backup...")
+                    shutil.copy2('index.html.backup', 'index.html')
+                    print("✅ index.html restored from backup")
+                else:
+                    print("✅ index.html unchanged, backup deleted")
+            else:
+                print("📋 Restoring missing index.html from backup...")
+                shutil.copy2('index.html.backup', 'index.html')
+                print("✅ index.html restored")
+            
+            # Clean up backup
+            os.remove('index.html.backup')
+        
         print(f"\n📁 All results saved:")
         print(f"   - Portfolio: portfolio/optimization_results.json")
         print(f"   - Models: models/")
@@ -959,6 +988,3 @@ def main():
     except Exception as e:
         print(f"❌ Process failed: {e}")
         raise
-
-if __name__ == "__main__":
-    main()
