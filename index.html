@@ -45,24 +45,26 @@
             font-size: 1.1em;
         }
         
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+        /* CHANGED: Remove dashboard-grid, use single column */
+        .dashboard-section {
             margin-bottom: 30px;
         }
         
-        @media (max-width: 1024px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
+        .update-info {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 10px 0;
         }
         
-        .prediction-card, .portfolio-card {
+        .portfolio-card, .prediction-card {
             background: white;
             border-radius: 15px;
             padding: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px; /* Add space between sections */
         }
         
         .card-header {
@@ -91,11 +93,30 @@
             border-radius: 10px;
         }
         
+        /* Keep predictions as 7-day grid but adjust for single column */
         .prediction-chart {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 10px;
             margin: 20px 0;
+        }
+        
+        @media (max-width: 1200px) {
+            .prediction-chart {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .prediction-chart {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .prediction-chart {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         
         .prediction-day {
@@ -160,16 +181,6 @@
         @media (max-width: 768px) {
             .data-section {
                 grid-template-columns: 1fr;
-            }
-            
-            .prediction-chart {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .prediction-chart {
-                grid-template-columns: repeat(2, 1fr);
             }
         }
         
@@ -258,15 +269,6 @@
         .portfolio-item.high-weight {
             border-color: #3498db;
             background: #d6eaf8;
-        }
-        
-        .update-info {
-            background: #2c3e50;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            margin: 10px 0;
         }
         
         .performance-metrics {
@@ -397,6 +399,14 @@
             font-size: 0.9em;
             color: #7f8c8d;
         }
+        
+        /* NEW: Divider between sections */
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            margin: 40px 0;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -410,8 +420,8 @@
             <p>Next update: <span id="next-update">Calculating...</span></p>
         </div>
 
-        <div class="dashboard-grid">
-            <!-- Portfolio Optimization Section -->
+        <!-- PORTFOLIO SECTION - TOP -->
+        <div class="dashboard-section">
             <div class="portfolio-card">
                 <div class="card-header">
                     <div class="icon">💼</div>
@@ -467,8 +477,13 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- BTC Prediction Section -->
+        <!-- VISUAL DIVIDER -->
+        <hr class="section-divider">
+
+        <!-- BTC PREDICTIONS SECTION - BOTTOM -->
+        <div class="dashboard-section">
             <div class="prediction-card">
                 <div class="card-header">
                     <div class="icon">📊</div>
@@ -720,6 +735,19 @@
             loadPredictions();
             calculateNextUpdate();
             setInterval(calculateNextUpdate, 60000);
+            
+            // Add smooth scrolling for better navigation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if(targetId !== '#') {
+                        document.querySelector(targetId)?.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
         });
     </script>
 </body>
