@@ -160,8 +160,6 @@ def create_training_history_chart(performance_data):
     
     return fig
 
-# In report_generation.py, update the generate_html_report() function:
-
 def generate_html_report():
     """Generate complete HTML report"""
     print("Generating performance report...")
@@ -169,13 +167,6 @@ def generate_html_report():
     # Load data
     performance_data, summary_data = load_performance_data()
     predictions_data = load_predictions()
-    
-    # Load portfolio data
-    try:
-        with open('portfolio/optimization_results.json', 'r') as f:
-            portfolio_data = json.load(f)
-    except:
-        portfolio_data = None
     
     # Create visualizations
     perf_fig = create_performance_dashboard(performance_data)
@@ -191,116 +182,87 @@ def generate_html_report():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>BTC Daily Prediction Report</title>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <style>
-            /* Add your existing styles from create_dashboard_html() here */
-            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; line-height: 1.6; min-height: 100vh; padding: 20px; }}
-            .container {{ max-width: 1400px; margin: 0 auto; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }}
-            .header {{ text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee; }}
-            .header h1 {{ color: #2c3e50; font-size: 2.5em; margin-bottom: 10px; }}
-            .header p {{ color: #7f8c8d; font-size: 1.1em; }}
-            /* ... rest of your styles ... */
+            body {{
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }}
+            .container {{
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }}
+            .header {{
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #e0e0e0;
+            }}
+            .summary-cards {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }}
+            .card {{
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 20px;
+                border-radius: 8px;
+                text-align: center;
+            }}
+            .chart {{
+                margin: 30px 0;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 10px;
+            }}
+            .prediction-highlights {{
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 8px;
+                margin: 20px 0;
+            }}
+            .recommendation {{
+                background: #e8f5e8;
+                padding: 15px;
+                border-radius: 8px;
+                border-left: 5px solid #4CAF50;
+                margin: 10px 0;
+            }}
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <h1><i class="fas fa-rocket"></i> AI Financial Analytics Dashboard</h1>
-                <p>Riverside Data Solutions, LLC & DeepSeek-powered Portfolio Optimization & BTC Predictions</p>
+                <h1>BTC Daily Prediction Report</h1>
                 <p>Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
             </div>
             
-            <!-- Portfolio Section -->
-            {f'''
-            <div class="card" style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 10px;">
-                <h2><i class="fas fa-chart-pie"></i> Portfolio Optimization</h2>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0;">
-                    <div class="metric">
-                        <div class="label">Optimal Volatility</div>
-                        <div class="value">{portfolio_data['performance']['optimal_volatility']*100:.1f}%</div>
-                    </div>
-                    <div class="metric">
-                        <div class="label">Expected Return</div>
-                        <div class="value">{portfolio_data['performance']['optimal_return']*100:.1f}%</div>
-                    </div>
-                    <div class="metric">
-                        <div class="label">Sharpe Ratio</div>
-                        <div class="value">{portfolio_data['performance']['optimal_sharpe']:.3f}</div>
-                    </div>
+            <div class="summary-cards">
+                <div class="card">
+                    <h3>Best Model</h3>
+                    <p>{summary_data.get('best_model_name', 'N/A')}</p>
+                </div>
+                <div class="card">
+                    <h3>Best Profit Score</h3>
+                    <p>{summary_data.get('best_profit_score', 0):.3f}</p>
+                </div>
+                <div class="card">
+                    <h3>Total Samples</h3>
+                    <p>{summary_data.get('total_samples', 0)}</p>
+                </div>
+                <div class="card">
+                    <h3>Models Trained</h3>
+                    <p>{summary_data.get('models_trained', 0)}</p>
                 </div>
             </div>
-            ''' if portfolio_data else ''}
-            
-            <!-- Current BTC Price -->
-            <div style="text-align: center; background: #2c3e50; color: white; padding: 15px; border-radius: 10px; margin: 20px 0;">
-                <h2>Current BTC Price: ${predictions_data['current_price']:,.2f if predictions_data else 'N/A'}</h2>
-            </div>
-            
-            <!-- Predictions Section -->
-            {f'''
-            <div class="prediction-highlights" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <h2><i class="fas fa-bitcoin"></i> BTC 7-Day Predictions</h2>
-                <p>Model: {predictions_data['model_used']} | Profit Score: {predictions_data['model_performance']['profit_score']:.4f} | Accuracy: {predictions_data['model_performance']['accuracy']*100:.1f}%</p>
-                
-                <!-- Prediction Visualization PNG -->
-                <div style="text-align: center; margin: 20px 0;">
-                    <img src="predictions/prediction_visualization.png" alt="BTC Prediction Chart" style="max-width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin: 20px 0;">
-                    {''.join([f'''
-                    <div style="background: {'#27ae60' if p['predicted_direction'] == 'UP' else '#e74c3c'}; color: white; padding: 15px; border-radius: 10px; text-align: center;">
-                        <div style="font-weight: bold; font-size: 1.2em;">Day {p['day']}</div>
-                        <div style="font-size: 0.9em; opacity: 0.9;">{p['date']}</div>
-                        <div style="font-weight: bold; margin: 5px 0;">${p['predicted_price']:,.2f}</div>
-                        <div style="font-weight: bold;">
-                            {p['predicted_return']:+.2f}%
-                        </div>
-                        <div style="font-size: 0.8em; margin-top: 5px;">{p['confidence']}</div>
-                    </div>
-                    ''' for p in predictions_data['predictions']])}
-                </div>
-                
-                <div class="recommendation" style="background: #e8f5e8; padding: 15px; border-radius: 8px; border-left: 5px solid #4CAF50;">
-                    <h3>Trading Recommendation: {predictions_data['trading_recommendation']['recommendation']}</h3>
-                    <p><strong>Reasoning:</strong> {predictions_data['trading_recommendation']['reasoning']}</p>
-                    <p><strong>Total 7-Day Return:</strong> {predictions_data['trading_recommendation']['total_return']:+.2f}%</p>
-                </div>
-            </div>
-            ''' if predictions_data else '<p>No prediction data available</p>'}
-            
-            <!-- Interactive Charts -->
-            <div class="chart" style="margin: 30px 0; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px;">
-                <div id="performance-chart"></div>
-            </div>
-            
-            <div class="chart" style="margin: 30px 0; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px;">
-                <div id="training-chart"></div>
-            </div>
-            
-            <!-- Add the interactive prediction chart if available -->
-            {f'<div class="chart" style="margin: 30px 0; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px;"><div id="prediction-chart"></div></div>' if predictions_data and pred_fig else ''}
-        </div>
-        
-        <!-- Your existing JavaScript for Plotly charts -->
-        <script>
-            // Add your Plotly chart code here from the existing report_generation.py
-        </script>
-    </body>
-    </html>
     """
-    
-    # Save HTML report
-    os.makedirs('reports', exist_ok=True)
-    with open('reports/dashboard.html', 'w', encoding='utf-8') as f:
-        f.write(html_content)
-    
-    # Also create index.html for GitHub Pages
-    with open('index.html', 'w', encoding='utf-8') as f:
-        f.write(html_content)
-    
-    print("Interactive dashboard generated: reports/dashboard.html and index.html")
     
     # Add predictions section if available
     if predictions_data and pred_fig:
@@ -466,5 +428,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
     
+
