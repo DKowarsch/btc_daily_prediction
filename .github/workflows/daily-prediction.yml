@@ -2,7 +2,7 @@ name: Daily BTC Prediction and Deploy
 
 on:
   schedule:
-    - cron: '0 15 * * *'  # 15:00 UTC = 7 AM PST (during standard time)
+    - cron: '0 15 * * *'  # 7 AM PST daily in Winter
   workflow_dispatch:  # Manual trigger
 
 jobs:
@@ -63,11 +63,7 @@ jobs:
         git config --local user.email "actions@users.noreply.github.com"
         
         # Add all generated files
-        git add models/*.h5 models/*.pkl models/*.json || echo "No model files to add"
-        git add reports/*.json reports/*.html || echo "No report files to add"
-        git add predictions/*.json predictions/*.csv predictions/*.png || echo "No prediction files to add"
-        git add portfolio/*.json || echo "No portfolio files to add"
-        git add index.html || echo "No index.html to add"
+        git add -f models/ reports/ predictions/ portfolio/ index.html
         
         # Check if there are any changes
         if git diff --cached --quiet; then
@@ -83,5 +79,5 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./
-        publish_branch: gh-pages  # Explicitly specify the branch
-        force_orphan: true  # Clean the branch each time
+        publish_branch: gh-pages
+        force_orphan: true
