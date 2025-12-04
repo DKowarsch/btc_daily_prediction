@@ -935,22 +935,21 @@ def main():
         print(f"📊 Best model: {training_results['best_model_name']}")
         print(f"💰 Test profit score: {training_results['training_summary']['best_profit_score']:.4f}")
         
-        # Run prediction
-        prediction_data = run_prediction()
+        # Run prediction (this creates the PNG visualization)
+        run_prediction()
         
-        # Run report generation instead of create_dashboard_html()
-        print("\n📊 Generating interactive dashboard...")
+        # Run the ORIGINAL report_generation.py
+        print("\n📊 Generating interactive Plotly dashboard...")
         try:
-            # Import and run report_generation
+            # Import and run the original report_generation.py
             import sys
             sys.path.append('src')
             from report_generation import main as generate_reports
             generate_reports()
         except Exception as e:
-            print(f"⚠️ Could not generate interactive reports: {e}")
-            print("📝 Creating simple dashboard instead...")
-            # Remove or comment out create_dashboard_html() call
-            # create_dashboard_html()  # Don't use this anymore
+            print(f"❌ Failed to generate reports: {e}")
+            # Fallback to your simple dashboard if needed
+            # create_dashboard_html()
         
         print(f"\n📁 All results saved:")
         print(f"   - Portfolio: portfolio/optimization_results.json")
