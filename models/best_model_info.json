@@ -1,5 +1,5 @@
 {
-  "best_model_name": "GRU_Tiny",
+  "best_model_name": "LSTM_Complex",
   "feature_columns": [
     "Returns",
     "Log_Returns",
@@ -22,7 +22,7 @@
     "Day_Cos"
   ],
   "sequence_length": 10,
-  "training_date": "2025-12-03T16:50:30.934316",
-  "best_profit_score": 0.5884508402792963,
-  "best_accuracy": 0.5247252747252747
+  "training_date": "2025-12-04T01:38:04.095063",
+  "best_profit_score": 0.5883326152523796,
+  "best_accuracy": 0.4945054945054945
 }
