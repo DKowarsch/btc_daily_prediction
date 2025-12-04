@@ -2,7 +2,7 @@ name: Daily BTC Prediction and Deploy
 
 on:
   schedule:
-    - cron: '0 15 * * *'  # 7 AM PST daily in Winter
+    - cron: '0 15 * * *'  # 15:00 UTC = 7 AM PST (during standard time)
   workflow_dispatch:  # Manual trigger
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
         
     - name: Create directories
       run: |
-        mkdir -p models reports predictions portfolio training_results
+        mkdir -p models reports predictions portfolio
         
     - name: Run prediction pipeline
       run: |
@@ -33,41 +33,55 @@ jobs:
     - name: Debug file creation
       run: |
         echo "📁 Checking created files:"
-        find . -name "*.json" -o -name "*.h5" -o -name "*.pkl" -o -name "*.png" | head -20
+        find . -name "*.json" -o -name "*.h5" -o -name "*.pkl" -o -name "*.png" -o -name "*.csv" | head -30
         echo "📁 Directory contents:"
-        ls -la models/ reports/ predictions/ portfolio/ training_results/ || echo "Some directories missing"
+        echo "Predictions dir:"
+        ls -la predictions/ || echo "Predictions directory missing"
+        echo "Reports dir:"
+        ls -la reports/ || echo "Reports directory missing"
+        echo "Portfolio dir:"
+        ls -la portfolio/ || echo "Portfolio directory missing"
         
     - name: Ensure index.html exists
       run: |
         # Check if dashboard.html exists in reports directory
         if [ -f "reports/dashboard.html" ]; then
-          echo "Found dashboard.html in reports directory"
+          echo "✅ Found dashboard.html in reports directory"
           # Copy it to root as index.html
           cp reports/dashboard.html index.html
-          echo "Copied reports/dashboard.html to index.html"
-        fi
-        
-        # Also check root directory
-        if [ -f "dashboard.html" ]; then
-          mv dashboard.html index.html
-          echo "Renamed dashboard.html to index.html"
-        fi
-        
-        # If still no index.html, create minimal one
-        if [ ! -f "index.html" ]; then
-          echo '<html><body><h1>BTC Predictions Dashboard</h1><p>Loading...</p></body></html>' > index.html
+          echo "📋 Copied reports/dashboard.html to index.html"
+        else
+          echo "⚠️  reports/dashboard.html not found"
+          # Try to create dashboard if missing
+          echo "📊 Creating dashboard from scratch..."
+          echo '<html><body><h1>BTC Predictions Dashboard</h1><p>Check predictions/ directory for latest results</p></body></html>' > index.html
         fi
         
     - name: Commit and push results
       run: |
         git config --local user.name "github-actions"
         git config --local user.email "actions@users.noreply.github.com"
-        git add models/ reports/ predictions/ portfolio/ training_results/ index.html reports/dashboard.html
-        git commit -m "🤖 Auto-update: BTC predictions $(date +%Y-%m-%d)" || exit 0
-        git push
+        
+        # Add all generated files
+        git add models/*.h5 models/*.pkl models/*.json || echo "No model files to add"
+        git add reports/*.json reports/*.html || echo "No report files to add"
+        git add predictions/*.json predictions/*.csv predictions/*.png || echo "No prediction files to add"
+        git add portfolio/*.json || echo "No portfolio files to add"
+        git add index.html || echo "No index.html to add"
+        
+        # Check if there are any changes
+        if git diff --cached --quiet; then
+          echo "🤷 No changes to commit"
+        else
+          git commit -m "🤖 Auto-update: BTC predictions $(date +%Y-%m-%d)"
+          git push
+          echo "✅ Changes committed and pushed"
+        fi
         
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./
+        publish_branch: gh-pages  # Explicitly specify the branch
+        force_orphan: true  # Clean the branch each time
