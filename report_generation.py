@@ -1,4 +1,4 @@
-# src/report_generation.py
+# src/report_generation.py 
 import pandas as pd
 import numpy as np
 import json
@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -31,6 +31,16 @@ def load_predictions():
         print(f"Warning: Could not load predictions: {e}")
         return None
 
+def load_portfolio_data():
+    """Load portfolio optimization data"""
+    try:
+        with open('portfolio/optimization_results.json', 'r') as f:
+            portfolio = json.load(f)
+        return portfolio
+    except Exception as e:
+        print(f"Warning: Could not load portfolio data: {e}")
+        return None
+
 def create_performance_dashboard(performance_data):
     """Create model performance comparison dashboard"""
     models = list(performance_data.keys())
@@ -38,12 +48,15 @@ def create_performance_dashboard(performance_data):
     
     fig = make_subplots(
         rows=2, cols=3,
-        subplot_titles=['Accuracy', 'F1-Score', 'Profit Score', 'Precision', 'Recall', 'Confidence'],
+        subplot_titles=['Accuracy', 'F1-Score', 'Profit Score', 'Precision', 'Recall', 'Model Parameters'],
         specs=[[{"type": "bar"}, {"type": "bar"}, {"type": "bar"}],
                [{"type": "bar"}, {"type": "bar"}, {"type": "bar"}]]
     )
     
-    # Add bars for each metric
+    # Professional color palette
+    colors = ['#3498db', '#2ecc71', '#9b59b6', '#e74c3c', '#f39c12', '#1abc9c']
+    
+    # Add bars for each metric with better colors
     for i, metric in enumerate(metrics):
         values = [performance_data[model][metric] for model in models]
         row = i // 3 + 1
@@ -51,15 +64,17 @@ def create_performance_dashboard(performance_data):
         
         fig.add_trace(
             go.Bar(name=metric, x=models, y=values, 
-                   text=[f'{v:.3f}' for v in values], textposition='auto'),
+                   text=[f'{v:.3f}' for v in values], textposition='auto',
+                   marker_color=colors[i], opacity=0.8),
             row=row, col=col
         )
     
-    # Add confidence metric
-    confidence_values = [performance_data[model]['confidence'] for model in models]
+    # Add parameters metric
+    parameters = [performance_data[model]['parameters'] for model in models]
     fig.add_trace(
-        go.Bar(name='Confidence', x=models, y=confidence_values,
-               text=[f'{v:.3f}' for v in confidence_values], textposition='auto'),
+        go.Bar(name='Parameters', x=models, y=parameters,
+               text=[f'{v:,}' for v in parameters], textposition='auto',
+               marker_color='#95a5a6', opacity=0.8),
         row=2, col=3
     )
     
@@ -67,46 +82,117 @@ def create_performance_dashboard(performance_data):
         title='Model Performance Comparison',
         height=600,
         showlegend=False,
-        template='plotly_white'
+        template='plotly_white',
+        font=dict(family="Arial, sans-serif", size=12),
+        plot_bgcolor='rgba(240, 240, 240, 0.5)',
+        paper_bgcolor='white'
     )
+    
+    # Update axes for better readability
+    fig.update_xaxes(tickangle=45)
+    fig.update_yaxes(tickformat=',.0%', row=1, col=1)
+    fig.update_yaxes(tickformat=',.0%', row=1, col=2)
+    fig.update_yaxes(tickformat=',.0%', row=1, col=3)
+    fig.update_yaxes(tickformat=',.0%', row=2, col=1)
+    fig.update_yaxes(tickformat=',.0%', row=2, col=2)
     
     return fig
 
 def create_prediction_timeline(predictions_data):
-    """Create prediction timeline visualization"""
+    """Create prediction timeline visualization with actual dates"""
     if not predictions_data:
         return None
         
-    predictions_df = pd.DataFrame(predictions_data['predictions'])
-    predictions_df['date'] = pd.to_datetime(predictions_df['date'])
+    predictions = predictions_data['predictions']
+    dates = [p['date'] for p in predictions]
+    returns = [p['predicted_return'] for p in predictions]
+    prices = [p['predicted_price'] for p in predictions]
+    directions = [p['predicted_direction'] for p in predictions]
+    confidences = [p['confidence'] for p in predictions]
     
-    fig = go.Figure()
+    # Create figure with secondary y-axis
+    fig = make_subplots(
+        rows=2, cols=1,
+        subplot_titles=['Predicted Returns', 'Predicted Prices'],
+        row_heights=[0.6, 0.4],
+        vertical_spacing=0.15
+    )
     
-    # Add confidence bars
-    for _, row in predictions_df.iterrows():
-        color = 'green' if row['direction'] == 'UP' else 'red'
-        fig.add_trace(go.Bar(
-            x=[row['date']],
-            y=[row['predicted_return']],
-            name=row['direction'],
-            marker_color=color,
-            text=f"{row['direction']} ({row['predicted_return']:+.2f}%)",
+    # Returns chart with gradient colors
+    colors = []
+    for ret in returns:
+        if ret > 0:
+            # Green gradient based on return magnitude
+            intensity = min(abs(ret) / 5, 1)  # Normalize to 0-1
+            colors.append(f'rgba(46, 204, 113, {0.3 + intensity*0.7})')
+        else:
+            # Red gradient based on return magnitude
+            intensity = min(abs(ret) / 5, 1)
+            colors.append(f'rgba(231, 76, 60, {0.3 + intensity*0.7})')
+    
+    fig.add_trace(
+        go.Bar(
+            x=dates,
+            y=returns,
+            name='Return',
+            marker_color=colors,
+            text=[f'{r:+.2f}%' for r in returns],
             textposition='auto',
             hovertemplate=(
-                f"Date: {row['date'].strftime('%Y-%m-%d')}<br>"
-                f"Prediction: {row['direction']}<br>"
-                f"Return: {row['predicted_return']:+.2f}%<br>"
-                f"Price: ${row['predicted_price']:.2f}"
+                "<b>%{x}</b><br>" +
+                "Return: %{text}<br>" +
+                "Direction: %{customdata[0]}<br>" +
+                "Confidence: %{customdata[1]}<br>" +
+                "<extra></extra>"
+            ),
+            customdata=list(zip(directions, confidences))
+        ),
+        row=1, col=1
+    )
+    
+    # Price chart
+    fig.add_trace(
+        go.Scatter(
+            x=dates,
+            y=prices,
+            mode='lines+markers',
+            name='Price',
+            line=dict(color='#3498db', width=3),
+            marker=dict(size=10, color='#2980b9'),
+            text=[f'${p:,.2f}' for p in prices],
+            hovertemplate=(
+                "<b>%{x}</b><br>" +
+                "Price: %{text}<br>" +
+                "<extra></extra>"
             )
-        ))
+        ),
+        row=2, col=1
+    )
+    
+    # Add current price reference line
+    current_price = predictions_data['current_price']
+    fig.add_hline(
+        y=current_price, 
+        line_dash="dash", 
+        line_color="#7f8c8d", 
+        annotation_text=f"Current: ${current_price:,.2f}",
+        annotation_position="top left",
+        row=2, col=1
+    )
     
     fig.update_layout(
-        title='BTC Price Predictions - Next 7 Days',
-        xaxis_title='Date',
-        yaxis_title='Predicted Return (%)',
+        title=f'BTC 7-Day Price Predictions',
+        height=600,
         template='plotly_white',
+        font=dict(family="Arial, sans-serif", size=12),
+        plot_bgcolor='rgba(240, 240, 240, 0.5)',
         showlegend=False
     )
+    
+    fig.update_xaxes(title_text='Date', row=2, col=1)
+    fig.update_yaxes(title_text='Return (%)', row=1, col=1)
+    fig.update_yaxes(title_text='Price ($)', row=2, col=1)
+    fig.update_yaxes(tickprefix='$', row=2, col=1)
     
     return fig
 
@@ -119,314 +205,327 @@ def create_training_history_chart(performance_data):
     
     fig = make_subplots(
         rows=1, cols=2,
-        subplot_titles=['Model Size vs Accuracy', 'Profit Score Distribution'],
+        subplot_titles=['Model Efficiency Analysis', 'Performance Distribution'],
         specs=[[{"type": "scatter"}, {"type": "pie"}]]
     )
     
-    # Model size vs accuracy
-    for i, model in enumerate(models):
-        fig.add_trace(
-            go.Scatter(
-                x=[parameters[i]],
-                y=[accuracy[i]],
-                mode='markers+text',
-                marker=dict(size=20),
-                text=[model],
-                textposition="middle right",
-                name=model
-            ),
-            row=1, col=1
-        )
+    # Model size vs accuracy - bubble chart
+    sizes = [p/1000 for p in parameters]  # Scale for bubble size
     
-    # Profit score distribution
+    fig.add_trace(
+        go.Scatter(
+            x=parameters,
+            y=accuracy,
+            mode='markers+text',
+            marker=dict(
+                size=sizes,
+                color=profit_scores,
+                colorscale='Viridis',
+                showscale=True,
+                colorbar=dict(title="Profit Score", x=0.46)
+            ),
+            text=models,
+            textposition="top center",
+            hovertemplate=(
+                "<b>%{text}</b><br>" +
+                "Parameters: %{x:,}<br>" +
+                "Accuracy: %{y:.3f}<br>" +
+                "Profit Score: %{marker.color:.3f}<br>" +
+                "<extra></extra>"
+            )
+        ),
+        row=1, col=1
+    )
+    
+    # Performance distribution with better colors
     fig.add_trace(
         go.Pie(
             labels=models,
             values=profit_scores,
             hole=0.4,
-            hoverinfo='label+value+percent'
+            marker=dict(colors=px.colors.qualitative.Set3),
+            hovertemplate="<b>%{label}</b><br>Profit Score: %{value:.3f}<br>Share: %{percent}",
+            textinfo='percent+label'
         ),
         row=1, col=2
     )
     
     fig.update_layout(
-        title='Model Characteristics Analysis',
-        height=400,
-        template='plotly_white'
+        title='Model Analysis Dashboard',
+        height=450,
+        template='plotly_white',
+        font=dict(family="Arial, sans-serif", size=12),
+        plot_bgcolor='rgba(240, 240, 240, 0.5)'
     )
     
     fig.update_xaxes(title_text='Number of Parameters', row=1, col=1)
-    fig.update_yaxes(title_text='Test Accuracy', row=1, col=1)
+    fig.update_yaxes(title_text='Test Accuracy', tickformat=',.0%', row=1, col=1)
     
     return fig
 
 def generate_html_report():
-    """Generate complete HTML report"""
-    print("Generating performance report...")
+    """Generate complete HTML report with professional design"""
+    print("Generating professional performance report...")
     
     # Load data
     performance_data, summary_data = load_performance_data()
     predictions_data = load_predictions()
+    portfolio_data = load_portfolio_data()
     
     # Create visualizations
     perf_fig = create_performance_dashboard(performance_data)
     training_fig = create_training_history_chart(performance_data)
     pred_fig = create_prediction_timeline(predictions_data)
     
-    # Generate HTML
+    # Get best model info
+    best_model = max(performance_data.items(), key=lambda x: x[1]['test_profit_score'])
+    best_model_name = best_model[0]
+    best_model_score = best_model[1]['test_profit_score']
+    
+    # Generate professional HTML
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>BTC Daily Prediction Report</title>
+        <title>AI Financial Analytics Dashboard</title>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
-            body {{
-                font-family: Arial, sans-serif;
+            * {{
                 margin: 0;
-                padding: 20px;
-                background-color: #f5f5f5;
+                padding: 0;
+                box-sizing: border-box;
             }}
+            
+            body {{
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: #333;
+                line-height: 1.6;
+                min-height: 100vh;
+                padding: 20px;
+            }}
+            
             .container {{
-                max-width: 1200px;
+                max-width: 1400px;
                 margin: 0 auto;
                 background: white;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                border-radius: 16px;
+                padding: 30px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.1);
             }}
+            
             .header {{
                 text-align: center;
-                margin-bottom: 30px;
-                padding-bottom: 20px;
-                border-bottom: 2px solid #e0e0e0;
+                margin-bottom: 40px;
+                padding-bottom: 30px;
+                border-bottom: 2px solid #f0f0f0;
             }}
-            .summary-cards {{
+            
+            .header h1 {{
+                color: #2c3e50;
+                font-size: 2.8em;
+                margin-bottom: 10px;
+                font-weight: 700;
+            }}
+            
+            .header .subtitle {{
+                color: #7f8c8d;
+                font-size: 1.2em;
+                margin-bottom: 20px;
+            }}
+            
+            .timestamp {{
+                background: #f8f9fa;
+                padding: 12px 20px;
+                border-radius: 10px;
+                display: inline-block;
+                color: #666;
+                font-size: 0.9em;
+            }}
+            
+            .dashboard-grid {{
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 20px;
-                margin-bottom: 30px;
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                gap: 30px;
+                margin-bottom: 40px;
             }}
+            
             .card {{
+                background: #fff;
+                border-radius: 12px;
+                padding: 25px;
+                box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+                border: 1px solid #f0f0f0;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }}
+            
+            .card:hover {{
+                transform: translateY(-5px);
+                box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+            }}
+            
+            .card h2 {{
+                color: #2c3e50;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-size: 1.4em;
+                font-weight: 600;
+            }}
+            
+            .card h2 i {{
+                color: #667eea;
+            }}
+            
+            .metric-grid {{
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+                margin: 20px 0;
+            }}
+            
+            .metric {{
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
                 padding: 20px;
-                border-radius: 8px;
+                border-radius: 10px;
                 text-align: center;
+                transition: transform 0.2s ease;
             }}
-            .chart {{
-                margin: 30px 0;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                padding: 10px;
+            
+            .metric:hover {{
+                transform: scale(1.05);
             }}
-            .prediction-highlights {{
-                background: #f8f9fa;
-                padding: 20px;
-                border-radius: 8px;
+            
+            .metric .value {{
+                font-size: 1.8em;
+                font-weight: 700;
+                margin: 5px 0;
+            }}
+            
+            .metric .label {{
+                font-size: 0.9em;
+                opacity: 0.9;
+            }}
+            
+            .prediction-card {{
+                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                padding: 25px;
+                border-radius: 12px;
                 margin: 20px 0;
             }}
+            
+            .prediction-grid {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 15px;
+                margin: 25px 0;
+            }}
+            
+            .prediction-day {{
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                text-align: center;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+                transition: all 0.3s ease;
+                border: 2px solid transparent;
+            }}
+            
+            .prediction-day.up {{
+                border-color: #2ecc71;
+                background: linear-gradient(135deg, #ffffff 0%, #d5f4e6 100%);
+            }}
+            
+            .prediction-day.down {{
+                border-color: #e74c3c;
+                background: linear-gradient(135deg, #ffffff 0%, #fadbd8 100%);
+            }}
+            
+            .prediction-day:hover {{
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            }}
+            
             .recommendation {{
-                background: #e8f5e8;
-                padding: 15px;
-                border-radius: 8px;
-                border-left: 5px solid #4CAF50;
-                margin: 10px 0;
+                background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+                padding: 25px;
+                border-radius: 12px;
+                margin: 30px 0;
+                border-left: 5px solid #28a745;
+            }}
+            
+            .recommendation h3 {{
+                color: #155724;
+                margin-bottom: 15px;
+                font-size: 1.3em;
+            }}
+            
+            .chart-container {{
+                margin: 25px 0;
+                padding: 20px;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            }}
+            
+            .footer {{
+                text-align: center;
+                margin-top: 50px;
+                padding-top: 30px;
+                border-top: 2px solid #f0f0f0;
+                color: #7f8c8d;
+                font-size: 0.9em;
+            }}
+            
+            .badge {{
+                display: inline-block;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 0.85em;
+                font-weight: 600;
+                margin-left: 10px;
+            }}
+            
+            .badge-success {{
+                background: #2ecc71;
+                color: white;
+            }}
+            
+            .badge-warning {{
+                background: #f39c12;
+                color: white;
+            }}
+            
+            .badge-danger {{
+                background: #e74c3c;
+                color: white;
+            }}
+            
+            @media (max-width: 768px) {{
+                .container {{
+                    padding: 20px;
+                }}
+                
+                .dashboard-grid {{
+                    grid-template-columns: 1fr;
+                }}
+                
+                .metric-grid {{
+                    grid-template-columns: 1fr;
+                }}
             }}
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <h1>BTC Daily Prediction Report</h1>
-                <p>Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-            </div>
-            
-            <div class="summary-cards">
-                <div class="card">
-                    <h3>Best Model</h3>
-                    <p>{summary_data.get('best_model_name', 'N/A')}</p>
-                </div>
-                <div class="card">
-                    <h3>Best Profit Score</h3>
-                    <p>{summary_data.get('best_profit_score', 0):.3f}</p>
-                </div>
-                <div class="card">
-                    <h3>Total Samples</h3>
-                    <p>{summary_data.get('total_samples', 0)}</p>
-                </div>
-                <div class="card">
-                    <h3>Models Trained</h3>
-                    <p>{summary_data.get('models_trained', 0)}</p>
-                </div>
-            </div>
-    """
-    
-    # Add predictions section if available
-    if predictions_data and pred_fig:
-        up_count = predictions_data['summary']['bullish_days']
-        down_count = predictions_data['summary']['bearish_days']
-        total_return = predictions_data['summary']['total_7day_return']
-        recommendation = predictions_data['trading_recommendation']
-        
-        html_content += f"""
-            <div class="prediction-highlights">
-                <h2>Next 7 Days Predictions</h2>
-                <p><strong>UP Days:</strong> {up_count} | <strong>DOWN Days:</strong> {down_count}</p>
-                <p><strong>Total 7-Day Return:</strong> {total_return:+.2f}%</p>
-                <p><strong>Average Daily Return:</strong> {predictions_data['summary']['average_daily_return']:+.2f}%</p>
-            </div>
-            
-            <div class="recommendation">
-                <h3>Trading Recommendation: {recommendation['recommendation']}</h3>
-                <p><strong>Confidence:</strong> {recommendation['confidence']}</p>
-                <p><strong>Reasoning:</strong> {recommendation['reasoning']}</p>
-                <p><strong>Stop Loss:</strong> ${recommendation['stop_loss']:.0f} | <strong>Take Profit:</strong> ${recommendation['take_profit']:.0f}</p>
-            </div>
-            
-            <div class="chart">
-                <div id="prediction-chart"></div>
-            </div>
-        """
-    
-    html_content += f"""
-            <div class="chart">
-                <div id="performance-chart"></div>
-            </div>
-            
-            <div class="chart">
-                <div id="training-chart"></div>
-            </div>
-        </div>
-        
-        <script>
-    """
-    
-    # Add Plotly charts
-    html_content += f"var perfChart = {perf_fig.to_json()};"
-    html_content += f"Plotly.newPlot('performance-chart', perfChart.data, perfChart.layout);"
-    
-    html_content += f"var trainingChart = {training_fig.to_json()};"
-    html_content += f"Plotly.newPlot('training-chart', trainingChart.data, trainingChart.layout);"
-    
-    if predictions_data and pred_fig:
-        html_content += f"var predChart = {pred_fig.to_json()};"
-        html_content += f"Plotly.newPlot('prediction-chart', predChart.data, predChart.layout);"
-    
-    html_content += """
-        </script>
-    </body>
-    </html>
-    """
-    
-    # Save HTML report with UTF-8 encoding
-    os.makedirs('reports', exist_ok=True)
-    with open('reports/dashboard.html', 'w', encoding='utf-8') as f:
-        f.write(html_content)
-    
-    print("HTML report generated: reports/dashboard.html")
-
-def generate_markdown_report():
-    """Generate markdown report for GitHub"""
-    print("Generating markdown report...")
-    
-    performance_data, summary_data = load_performance_data()
-    predictions_data = load_predictions()
-    
-    # Find best model
-    best_model = max(performance_data.items(), key=lambda x: x[1]['test_profit_score'])
-    
-    markdown_content = f"""# BTC Daily Prediction Report
-
-**Generated on**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-
-## Performance Summary
-
-- **Best Model**: {best_model[0]}
-- **Best Profit Score**: {best_model[1]['test_profit_score']:.3f}
-- **Best Accuracy**: {best_model[1]['test_accuracy']:.3f}
-- **Total Training Samples**: {summary_data.get('total_samples', 0)}
-- **Models Trained**: {summary_data.get('models_trained', 0)}
-
-## Model Performance Comparison
-
-| Model | Accuracy | F1-Score | Profit Score | Precision | Recall |
-|-------|----------|----------|--------------|-----------|--------|
-"""
-    
-    # Add model performance table
-    for model, metrics in performance_data.items():
-        markdown_content += f"| {model} | {metrics['test_accuracy']:.3f} | {metrics['test_f1']:.3f} | {metrics['test_profit_score']:.3f} | {metrics['test_precision']:.3f} | {metrics['test_recall']:.3f} |\n"
-    
-    # Add predictions section
-    if predictions_data:
-        recommendation = predictions_data['trading_recommendation']
-        
-        markdown_content += f"""
-
-## Next 7 Days Predictions
-
-### Trading Recommendation: {recommendation['recommendation']}
-- **Confidence**: {recommendation['confidence']}
-- **Reasoning**: {recommendation['reasoning']}
-- **Total 7-Day Return**: {recommendation['total_return']:+.2f}%
-- **Stop Loss**: ${recommendation['stop_loss']:.0f}
-- **Take Profit**: ${recommendation['take_profit']:.0f}
-
-### Daily Predictions:
-| Date | Prediction | Return | Price |
-|------|------------|--------|-------|
-"""
-        
-        for pred in predictions_data['predictions']:
-            markdown_content += f"| {pred['date']} | {pred['direction']} | {pred['predicted_return']:+.2f}% | ${pred['predicted_price']:.2f} |\n"
-        
-        up_count = predictions_data['summary']['bullish_days']
-        markdown_content += f"\n**Summary**: {up_count} UP days, {7-up_count} DOWN days\n"
-    
-    markdown_content += f"""
-
-## Files
-
-- `models/best_model_info.json` - Best model configuration
-- `reports/model_performance.json` - Detailed performance metrics
-- `reports/dashboard.html` - Interactive dashboard
-- `predictions/latest_predictions.json` - Latest predictions
-- `predictions/prediction_visualization.png` - Prediction chart
-
-![Prediction Visualization](predictions/prediction_visualization.png)
-
----
-
-*Report automatically generated by BTC Prediction System*
-"""
-    
-    # Save markdown report with UTF-8 encoding
-    with open('README.md', 'w', encoding='utf-8') as f:
-        f.write(markdown_content)
-    
-    print("Markdown report generated: README.md")
-
-def main():
-    """Generate all reports"""
-    try:
-        print("Generating BTC Prediction Reports")
-        print("="*40)
-        
-        generate_html_report()
-        generate_markdown_report()
-        
-        print("\nAll reports generated successfully!")
-        print("View interactive dashboard: reports/dashboard.html")
-        print("View summary report: README.md")
-        
-    except Exception as e:
-        print(f"Report generation failed: {e}")
-        raise
-
-if __name__ == "__main__":
-    main()
-    
-
+                <h1><i class="fas fa-chart-line"></i> AI Financial Analytics Dashboard</h1>
+                <p class="subtitle">Riverside Data Solutions, LLC • DeepSeek AI-Powered Predictions</p>
+                <div class="timestamp">
+                    <i class="fas fa-sync-alt"></i> Last updated: {datetime.now().strftime('%Y-%m-%d %H
