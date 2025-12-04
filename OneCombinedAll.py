@@ -948,7 +948,8 @@ def main():
             generate_reports()
         except Exception as e:
             print(f"❌ Failed to generate reports: {e}")
-            # Fallback to your simple dashboard if needed
+            print("⚠️ Falling back to simple dashboard...")
+            # You can optionally call create_dashboard_html() here if you want
             # create_dashboard_html()
         
         print(f"\n📁 All results saved:")
