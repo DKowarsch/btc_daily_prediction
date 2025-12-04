@@ -938,27 +938,27 @@ def main():
         # Run prediction (this creates the PNG visualization)
         run_prediction()
         
-        # Run the ORIGINAL report_generation.py
-        print("\n📊 Generating interactive Plotly dashboard...")
+        # Generate only markdown report
+        print("\n📊 Generating markdown report...")
         try:
-            # Import and run the original report_generation.py
             import sys
             sys.path.append('src')
-            from report_generation import main as generate_reports
-            generate_reports()
+            from report_generation import generate_markdown_report
+            generate_markdown_report()
         except Exception as e:
-            print(f"❌ Failed to generate reports: {e}")
-            print("⚠️ Falling back to simple dashboard...")
-            # You can optionally call create_dashboard_html() here if you want
-            # create_dashboard_html()
+            print(f"⚠️ Could not generate markdown report: {e}")
         
         print(f"\n📁 All results saved:")
         print(f"   - Portfolio: portfolio/optimization_results.json")
         print(f"   - Models: models/")
         print(f"   - Reports: reports/")
         print(f"   - Predictions: predictions/ (JSON, CSV, PNG)")
-        print(f"   - Dashboard: reports/dashboard.html & index.html")
+        print(f"   - Dashboard: index.html (your custom dynamic dashboard)")
+        print(f"   - Summary: README.md")
         
     except Exception as e:
         print(f"❌ Process failed: {e}")
         raise
+
+if __name__ == "__main__":
+    main()
