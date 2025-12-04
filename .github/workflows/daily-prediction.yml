@@ -5,9 +5,17 @@ on:
     - cron: '0 15 * * *'  # 7 AM PST daily in Winter
   workflow_dispatch:  # Manual trigger
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   btc-prediction-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     
     steps:
     - name: Checkout code
@@ -47,14 +55,13 @@ jobs:
         # Check if dashboard.html exists in reports directory
         if [ -f "reports/dashboard.html" ]; then
           echo "✅ Found dashboard.html in reports directory"
-          # Copy it to root as index.html
+          # Copy it to root as index.html for GitHub Pages
           cp reports/dashboard.html index.html
           echo "📋 Copied reports/dashboard.html to index.html"
         else
           echo "⚠️  reports/dashboard.html not found"
-          # Try to create dashboard if missing
-          echo "📊 Creating dashboard from scratch..."
-          echo '<html><body><h1>BTC Predictions Dashboard</h1><p>Check predictions/ directory for latest results</p></body></html>' > index.html
+          # Create minimal fallback
+          echo '<html><body><h1>BTC Predictions Dashboard</h1><p>Dashboard generation in progress...</p></body></html>' > index.html
         fi
         
     - name: Commit and push results
@@ -73,11 +80,15 @@ jobs:
           git push
           echo "✅ Changes committed and pushed"
         fi
+    
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: '.'
         
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./
-        publish_branch: gh-pages
-        force_orphan: true
+      id: deployment
+      uses: actions/deploy-pages@v4
